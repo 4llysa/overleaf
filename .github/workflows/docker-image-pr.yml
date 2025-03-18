@@ -1,4 +1,4 @@
-name: Build & publish
+name: PULL REQUEST Build & publish
 
 on:
   pull_request:
@@ -34,7 +34,7 @@ jobs:
           make build-community
 
       - name: Debug
-        run: |
+        run:
           docker images
 
       - name: Publish
