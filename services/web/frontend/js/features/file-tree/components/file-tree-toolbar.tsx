@@ -110,7 +110,7 @@ function FileTreeToolbarLeft() {
             })
         );
       }}>
-        <Icon type="file" fw accessibilityLabel={t('upload')} />
+        <Icon type="sync" fw accessibilityLabel={t('pull')} />
       </Button>
     </Tooltip>
     </div>
