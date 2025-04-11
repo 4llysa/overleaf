@@ -110,7 +110,7 @@ function FileTreeToolbarLeft() {
             })
         );
       }}>
-        <Icon type="sync" fw accessibilityLabel={t('pull')} />
+        <Icon type="rotate" fw accessibilityLabel={t('pull')} />
       </Button>
     </Tooltip>
     </div>
