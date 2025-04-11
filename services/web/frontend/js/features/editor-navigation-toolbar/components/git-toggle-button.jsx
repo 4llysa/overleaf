@@ -23,7 +23,7 @@ function Modal({ isOpen, onClose, onCommit, onPush, notStagedFiles, stagedFiles}
           <h2 style={{ fontFamily: 'sans-serif', fontWeight: 500 }}>Git Menu</h2>
           <div>
             <label htmlFor="commit-message" style={{ color: 'black' }}>Commit message</label>
-            <textarea id="commit-message" rows="4" style={{ width: '100%' }}></textarea>
+            <textarea id="commit-message" rows="4" style={{ color: 'dimgray', width: '100%' }}></textarea>
           </div>
           <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <button onClick={onCommit} style={{ color: 'black', width: '100%', marginBottom: '10px' }}>Commit</button>

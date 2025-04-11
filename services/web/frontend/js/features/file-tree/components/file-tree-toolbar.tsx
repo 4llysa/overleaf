@@ -110,7 +110,7 @@ function FileTreeToolbarLeft() {
             })
         );
       }}>
-        <Icon type="rotate" fw accessibilityLabel={t('pull')} />
+        <Icon type="code-pull-request" fw accessibilityLabel={t('pull')} />
       </Button>
     </Tooltip>
     </div>
