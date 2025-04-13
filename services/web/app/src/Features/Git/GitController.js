@@ -340,75 +340,33 @@ GitController = {
     console.log("Commit " + filePath + " in " + projectPath)
     res.sendStatus(200)
   },
-  //
-  // pull(req, res) {
-  //   const projectId = req.body.projectId;
-  //   const userId = req.body.userId;
-  //   const projectPath = dataPath + projectId + "-" + userId;
-  //
-  //   console.log("Pulling");
-  //
-  //   getKey(userId, 'private')
-  //       .then(key => {
-  //         const GIT_SSH_COMMAND = `ssh -o StrictHostKeyChecking=no -i ${key}`;
-  //         git = simpleGit().env({ 'GIT_SSH_COMMAND': GIT_SSH_COMMAND });
-  //         return move(projectId, userId);
-  //       })
-  //       // .then(() => git.pull({ '--no-rebase': null }))
-  //       .then(() => git.fetch())
-  //       .then(() => {
-  //         const mergeSummary = simpleGit().merge();
-  //         console.log(`Merged ${mergeSummary.merges.length} files`);
-  //         console.log("Repository pulled");
-  //         return buildProject(projectPath, projectId, userId, getRootId(projectId));
-  //         res.sendStatus(200) })
-  //       .catch (err => {
-  //         const mergeSummary: MergeSummary = (err as GitResponseError<MergeSummary>).git;
-  //         const conflicts = mergeSummary?.conflicts || [];
-  //
-  //         console.error(`Merge resulted in ${conflicts.length} conflicts`);
-  //         console.error(`Merge error: ${err.message}`);
-  //         console.error(`err.stack: ${err.stack}`);
-  //         console.error(`err.git: ${err.git}`);
-  //         res.sendStatus(500);
-  //         })
-  //   },
 
+  pull(req, res) {
+    const projectId = req.body.projectId
+    const userId = req.body.userId
+    const projectPath = dataPath + projectId + "-" + userId
 
-    pull(req, res) {
-      const projectId = req.body.projectId
-      const userId = req.body.userId
-      const projectPath = dataPath + projectId + "-" + userId
+    console.log("Pulling")
 
-      console.log("Pulling")
-
-      getKey(userId, 'private')
-        .then(key => {
-          const GIT_SSH_COMMAND = `ssh -o StrictHostKeyChecking=no -i ${key}`;
-          git = simpleGit().env({'GIT_SSH_COMMAND': GIT_SSH_COMMAND});
-          return move(projectId, userId)
-        })
-        .then(() => git.listRemote())
-        // git fetch and merge preferred because pull interface does not show full error: https://github.com/steveukx/git-js/issues/625
-        // .then(() => git.fetch())
-        // .then(() => git.merge(['--no-rebase']))
-        .then(() => git.pull({'--no-rebase': null}))
-        .then(update => {
-          console.log("Repository pulled");
-          return buildProject(projectPath, projectId, userId, getRootId(projectId));
-        })
-        .then(() => res.sendStatus(200))
-        // .catch(error => {
-        //   console.log("Git diff", git.diff(["HEAD", "origin/main"]) );
-        //   console.log("Git diff", git.diffSummary() );
-        // })
-        .catch(error => {
-
-          console.error("Error:", error);
-          res.sendStatus(500);
-          return buildProject(projectPath, projectId, userId, getRootId(projectId));
-        });
-    },
+    getKey(userId, 'private')
+      .then(key => {
+        const GIT_SSH_COMMAND = `ssh -o StrictHostKeyChecking=no -i ${key}`;
+        git = simpleGit().env({'GIT_SSH_COMMAND': GIT_SSH_COMMAND});
+        return move(projectId, userId)
+      })
+      .then(() => git.listRemote())
+      .then(() => git.pull({'--no-rebase': null}))
+      .then(update => {
+        console.log("Repository pulled");
+        return buildProject(projectPath, projectId, userId, getRootId(projectId));
+      })
+      .then(() => res.sendStatus(200))
+      .catch(error => {
+        console.error("Error:", error);
+        res.sendStatus(500);
+        return buildProject(projectPath, projectId, userId, getRootId(projectId));
+      });
+  },
 
   add(req, res) {
     const projectId = req.body.projectId
