@@ -388,15 +388,25 @@ GitController = {
           git = simpleGit().env({'GIT_SSH_COMMAND': GIT_SSH_COMMAND});
           return move(projectId, userId)
         })
-        .then(() => git.pull())
+        .then(() => git.listRemote())
+        // git fetch and merge preferred because pull interface does not show full error: https://github.com/steveukx/git-js/issues/625
+        // .then(() => git.fetch())
+        // .then(() => git.merge(['--no-rebase']))
+        .then(() => git.pull({'--no-rebase': null}))
         .then(update => {
           console.log("Repository pulled");
           return buildProject(projectPath, projectId, userId, getRootId(projectId));
         })
         .then(() => res.sendStatus(200))
+        // .catch(error => {
+        //   console.log("Git diff", git.diff(["HEAD", "origin/main"]) );
+        //   console.log("Git diff", git.diffSummary() );
+        // })
         .catch(error => {
+
           console.error("Error:", error);
           res.sendStatus(500);
+          return buildProject(projectPath, projectId, userId, getRootId(projectId));
         });
     },
 
