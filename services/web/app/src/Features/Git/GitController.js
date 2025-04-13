@@ -58,8 +58,9 @@ async function resetDatabase(projectId, userId, projectPath) {
   }
 }
 
-async function buildProject(currentPath, projectId, ownerId, parentId){
+async function buildProject(currentPath, projectId, ownerId, parentId) {
 
+  resetDatabase(projectId, ownerId, currentPath) //
   const items = await fs.readdir(currentPath)
 
   for (const item of items) {
@@ -339,65 +340,66 @@ GitController = {
     console.log("Commit " + filePath + " in " + projectPath)
     res.sendStatus(200)
   },
+  //
+  // pull(req, res) {
+  //   const projectId = req.body.projectId;
+  //   const userId = req.body.userId;
+  //   const projectPath = dataPath + projectId + "-" + userId;
+  //
+  //   console.log("Pulling");
+  //
+  //   getKey(userId, 'private')
+  //       .then(key => {
+  //         const GIT_SSH_COMMAND = `ssh -o StrictHostKeyChecking=no -i ${key}`;
+  //         git = simpleGit().env({ 'GIT_SSH_COMMAND': GIT_SSH_COMMAND });
+  //         return move(projectId, userId);
+  //       })
+  //       // .then(() => git.pull({ '--no-rebase': null }))
+  //       .then(() => git.fetch())
+  //       .then(() => {
+  //         const mergeSummary = simpleGit().merge();
+  //         console.log(`Merged ${mergeSummary.merges.length} files`);
+  //         console.log("Repository pulled");
+  //         return buildProject(projectPath, projectId, userId, getRootId(projectId));
+  //         res.sendStatus(200) })
+  //       .catch (err => {
+  //         const mergeSummary: MergeSummary = (err as GitResponseError<MergeSummary>).git;
+  //         const conflicts = mergeSummary?.conflicts || [];
+  //
+  //         console.error(`Merge resulted in ${conflicts.length} conflicts`);
+  //         console.error(`Merge error: ${err.message}`);
+  //         console.error(`err.stack: ${err.stack}`);
+  //         console.error(`err.git: ${err.git}`);
+  //         res.sendStatus(500);
+  //         })
+  //   },
+
+
     pull(req, res) {
-        const projectId = req.body.projectId;
-        const userId = req.body.userId;
-        const projectPath = dataPath + projectId + "-" + userId;
+      const projectId = req.body.projectId
+      const userId = req.body.userId
+      const projectPath = dataPath + projectId + "-" + userId
 
-        console.log("Pulling");
+      console.log("Pulling")
 
-        resetDatabase(projectId, userId, projectPath)
-            .then(() => getKey(userId, 'private'))
-            .then(key => {
-                const GIT_SSH_COMMAND = `ssh -o StrictHostKeyChecking=no -i ${key}`;
-                git = simpleGit().env({ 'GIT_SSH_COMMAND': GIT_SSH_COMMAND });
-                return move(projectId, userId);
-            })
-            .then(() => git.pull({ '--rebase': 'true' }))
-            .then(update => {
-                console.log("Repository pulled");
-                return buildProject(projectPath, projectId, userId, getRootId(projectId));
-            })
-            .then(() => res.sendStatus(200))
-            .catch(async (error) => {
-                console.error("Error:", error);
-                try {
-                    await resetDatabase(projectId, userId, projectPath);
-                    res.status(500).json({ message: "An error occurred. Changes reverted." });
-                } catch (restoreError) {
-                    console.error("Restore failed:", restoreError);
-                    res.status(500).json({ message: "Critical error. Could not revert changes." });
-                }
-            });
+      getKey(userId, 'private')
+        .then(key => {
+          const GIT_SSH_COMMAND = `ssh -o StrictHostKeyChecking=no -i ${key}`;
+          git = simpleGit().env({'GIT_SSH_COMMAND': GIT_SSH_COMMAND});
+          return move(projectId, userId)
+        })
+        .then(() => git.pull())
+        .then(update => {
+          console.log("Repository pulled");
+          return buildProject(projectPath, projectId, userId, getRootId(projectId));
+        })
+        .then(() => res.sendStatus(200))
+        .catch(error => {
+          console.error("Error:", error);
+          res.sendStatus(500);
+        });
     },
 
-    /*
-      pull(req, res) {
-        const projectId = req.body.projectId
-        const userId = req.body.userId
-        const projectPath = dataPath + projectId + "-" + userId
-
-        console.log("Pulling")
-
-        resetDatabase(projectId, userId, projectPath)
-        .then(() => getKey(userId, 'private'))
-          .then(key => {
-            const GIT_SSH_COMMAND = `ssh -o StrictHostKeyChecking=no -i ${key}`;
-            git = simpleGit().env({'GIT_SSH_COMMAND': GIT_SSH_COMMAND});
-            return move(projectId, userId)
-          })
-          .then(() => git.pull())
-          .then(update => {
-            console.log("Repository pulled");
-            return buildProject(projectPath, projectId, userId, getRootId(projectId));
-          })
-          .then(() => res.sendStatus(200))
-          .catch(error => {
-            console.error("Error:", error);
-            res.sendStatus(500);
-          });
-      },
-    */
   add(req, res) {
     const projectId = req.body.projectId
     const userId = req.body.userId
