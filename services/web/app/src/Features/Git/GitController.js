@@ -60,7 +60,7 @@ async function resetDatabase(projectId, userId, projectPath) {
 
 async function buildProject(currentPath, projectId, ownerId, parentId) {
 
-  resetDatabase(projectId, ownerId, currentPath) //
+  resetDatabase(projectId, ownerId, currentPath)
   const items = await fs.readdir(currentPath)
 
   for (const item of items) {
@@ -354,7 +354,6 @@ GitController = {
         git = simpleGit().env({'GIT_SSH_COMMAND': GIT_SSH_COMMAND});
         return move(projectId, userId)
       })
-      .then(() => git.listRemote())
       .then(() => git.pull({'--no-rebase': null}))
       .then(update => {
         console.log("Repository pulled");
