@@ -367,10 +367,19 @@ async function clearProjectWithListing(projectId, userId, allEntries) {
 }
 
 async function _findAllDirs() {
-  const root = Settings.path.compilesDir
-  const files = await fsPromises.readdir(root)
-  const allDirs = files.map(file => Path.join(root, file))
-  return allDirs
+  const compilesRoot = Settings.path.compilesDir
+  const gitRoot = Settings.path.gitDir
+
+  // Read directories inside compilesDir
+  const compileFiles = await fsPromises.readdir(compilesRoot)
+  const compilesDirs = compileFiles.map(file => Path.join(compilesRoot, file))
+
+  // Read directories inside gitDir
+  const gitFiles = await fsPromises.readdir(gitRoot)
+  const gitDirs = gitFiles.map(file => Path.join(gitRoot, file))
+
+  // Return as a map/object
+  return compilesDirs.concat(gitDirs)
 }
 
 async function clearExpiredProjects(maxCacheAgeMs) {
