@@ -1,4 +1,4 @@
-const OError = require('@overleaf/o-error')
+  const OError = require('@overleaf/o-error')
 const metrics = require('@overleaf/metrics')
 const Settings = require('@overleaf/settings')
 const { ObjectId } = require('mongodb')
@@ -10,6 +10,7 @@ const ProjectDetailsHandler = require('./ProjectDetailsHandler')
 const HistoryManager = require('../History/HistoryManager')
 const { User } = require('../../models/User')
 const fs = require('fs')
+const fse = require('fs-extra')
 const path = require('path')
 const { gitClone } = require('../Git/GitController')
 const { callbackify } = require('util')
@@ -17,6 +18,7 @@ const _ = require('lodash')
 const AnalyticsManager = require('../Analytics/AnalyticsManager')
 const TpdsUpdateSender = require('../ThirdPartyDataStore/TpdsUpdateSender')
 const SplitTestHandler = require('../SplitTests/SplitTestHandler')
+const EditorController = require('../Editor/EditorController')
 
 const MONTH_NAMES = [
   'January',
@@ -94,11 +96,21 @@ async function createBasicProject(ownerId, projectName) {
   return project
 }
 
-async function createExampleProject(ownerId, projectName) {
+async function createTemplateProject(ownerId, projectName) {
   const project = await _createBlankProject(ownerId, projectName)
 
   await _addExampleProjectFiles(ownerId, projectName, project)
+  AnalyticsManager.recordEventForUserInBackground(ownerId, 'project-created', {
+    projectId: project._id,
+  })
 
+  return project
+}
+
+async function createExampleProject(ownerId, projectName) {
+  const project = await _createBlankProject(ownerId, projectName)
+
+  await _addTemplateProjectFiles(ownerId, projectName, project, templateProjectDir)
   AnalyticsManager.recordEventForUserInBackground(ownerId, 'project-created', {
     projectId: project._id,
   })
@@ -108,7 +120,7 @@ async function createExampleProject(ownerId, projectName) {
 
 async function createGitProject(ownerId, projectLink) {
   console.log("Importing git project")
-  const regex = /^git@github\.com:(.+?)\/(.+?)\.git$/;
+  const regex = /^git@(.+?)\.com:(.+?)\/(.+?)\.git$/;
   const match = projectLink.match(regex);
 
   if (match) {
@@ -162,6 +174,94 @@ async function _addExampleProjectFiles(ownerId, projectName, project) {
     ownerId,
     null
   )
+}
+
+async function addFolder(projectId, ownerId, parentId, name, itemPath) {
+  const doc = await EditorController.promises.addFolder(
+    projectId,
+    parentId,
+    name,
+    'editor',
+    ownerId
+  )
+
+  await recAddFiles(projectId, ownerId, parentId, name, itemPath)
+  return doc._id.toString()
+}
+
+async function addFile(ownerId, project, itemPath) {
+  try {
+    await ProjectEntityUpdateHandler.promises.addFile(
+          project._id,
+          project.rootFolder[0]._id,
+          path.basename(itemPath),
+          itemPath,
+          null,
+          ownerId,
+          null
+        )
+  } catch (err) {
+    console.error(err.message)
+    return "0"
+  }
+}
+
+async function addDocFile(ownerId, projectName, project, filespath, itemPath) {
+  console.log("itemPath : ", itemPath)
+  const filepath = path.join(filespath, itemPath)
+  console.log("filepath : ", filepath)
+  console.log("filespath jointé avec basename(itemPath) : ", path.join(filespath, path.basename(itemPath)))
+  const bibDocLines = await _buildTemplate(
+    `${path.join(filespath, path.basename(itemPath))}`,
+    ownerId,
+    projectName
+  )
+  await ProjectEntityUpdateHandler.promises.addDoc(
+    project._id,
+    project.rootFolder[0]._id,
+    path.basename(itemPath),
+    bibDocLines,
+    ownerId,
+    null
+  )
+}
+
+async function recAddFiles(ownerId, projectName, project, filespath, templatePath) {
+  const items = await fse.readdir(templatePath)
+
+  for (const item of items){
+    const itemPath = path.join(templatePath, item)
+    const stat = await fse.stat(itemPath)
+    if (stat.isDirectory() && item != ".git"){
+      await addFolder(project._id, ownerId, project.rootFolder[0]._id, item, itemPath)
+    } else {
+      const itemPath = path.join(templatePath, item)
+      const isDoc = itemPath.match(/\.bib$/)
+      if (isDoc){
+        await addDocFile(ownerId, projectName, project, filespath, itemPath)
+      } else if (path.basename(itemPath).localeCompare("main.tex")){
+        await addFile(ownerId, project, itemPath)
+      }
+    }
+  }
+}
+
+async function _addTemplateProjectFiles(ownerId, projectName, project, filespath) {
+  temp = path.join(filespath, 'main.tex')
+  const main = temp
+  const mainDocLines = await _buildTemplate(
+    `${main}`,
+    ownerId,
+    projectName
+  )
+  await _createRootDoc(project, ownerId, mainDocLines)
+  const templatePath = path.join(
+    __dirname,
+    `/../../../templates/project_files`,
+    templateProjectDir
+  )
+
+  await recAddFiles(ownerId, projectName, project, filespath, templatePath)
 }
 
 async function _createBlankProject(
@@ -247,7 +347,6 @@ async function _createRootDoc(project, ownerId, docLines) {
 
 async function _buildTemplate(templateName, userId, projectName) {
   const user = await User.findById(userId, 'first_name last_name')
-
   const templatePath = path.join(
     __dirname,
     `/../../../templates/project_files/${templateName}`
@@ -269,11 +368,13 @@ module.exports = {
   createBasicProject: callbackify(createBasicProject),
   createExampleProject: callbackify(createExampleProject),
   createGitProject: callbackify(createGitProject),
+  createTemplateProject: callbackify(createTemplateProject),
   promises: {
     createBlankProject,
     createProjectFromSnippet,
     createBasicProject,
     createExampleProject,
     createGitProject,
+    createTemplateProject
   },
 }
