@@ -1,0 +1,67 @@
+# ---------------------------------------------
+# Overleaf Community Edition (real-time only)
+# ---------------------------------------------
+
+ARG OVERLEAF_BASE_TAG=sharelatex/sharelatex-base:latest
+FROM $OVERLEAF_BASE_TAG
+
+WORKDIR /overleaf
+
+# Add required source files for real-time service only
+# ----------------------------------------------------
+ADD server-ce/genScript.js /overleaf/genScript.js
+ADD server-ce/services.js /overleaf/services.js
+ADD package.json package-lock.json /overleaf/
+ADD libraries/ /overleaf/libraries/
+ADD services/real-time/ /overleaf/services/real-time/
+
+# Add npm patches
+# ---------------
+ADD patches/ /overleaf/patches
+
+# Install npm dependencies and build assets
+# -----------------------------------------
+RUN --mount=type=cache,target=/root/.cache \
+    --mount=type=cache,target=/root/.npm \
+    --mount=type=tmpfs,target=/tmp true \
+&&  node genScript install | bash \
+&&  node genScript compile | bash
+
+# Copy runit service startup script for real-time service only
+# -----------------------------------------------------------
+ADD server-ce/runit/real-time-overleaf /etc/service/real-time
+
+# Copy runit global settings
+# --------------------------
+ADD server-ce/config/env.sh /etc/overleaf/env.sh
+
+# Configure log rotation (optional, for real-time logs)
+# -----------------------------------------------------
+ADD server-ce/logrotate/overleaf /etc/logrotate.d/overleaf
+RUN chmod 644 /etc/logrotate.d/overleaf
+
+# Copy app settings files if real-time service uses them
+# ------------------------------------------------------
+COPY server-ce/config/settings.js /etc/overleaf/settings.js
+
+# Set Environment Variables (key=value format)
+# --------------------------------------------
+ENV SITE_MAINTENANCE_FILE=/etc/overleaf/site_status
+RUN touch $SITE_MAINTENANCE_FILE
+
+ENV OVERLEAF_CONFIG=/etc/overleaf/settings.js
+ENV KILL_PROCESS_TIMEOUT=55
+ENV KILL_ALL_PROCESSES_TIMEOUT=55
+ENV GRACEFUL_SHUTDOWN_DELAY_SECONDS=1
+ENV NODE_ENV=production
+ENV LOG_LEVEL=info
+
+EXPOSE 3026
+
+ENTRYPOINT ["/sbin/my_init"]
+
+# Store the revision
+# ------------------
+ARG MONOREPO_REVISION
+RUN echo "monorepo-server-ce-realtime,$MONOREPO_REVISION" > /var/www/revisions.txt
+

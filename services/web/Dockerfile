@@ -29,7 +29,7 @@ COPY services/web/package.json /overleaf/services/web/
 COPY libraries/ /overleaf/libraries/
 COPY patches/ /overleaf/patches/
 
-RUN cd /overleaf && NODE_ENV=production npm ci --quiet
+RUN cd /overleaf && NODE_ENV=production npm install --quiet
 
 FROM deps-prod as deps
 

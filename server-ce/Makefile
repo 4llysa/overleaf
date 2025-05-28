@@ -25,6 +25,55 @@ build-base:
 	  --tag $(OVERLEAF_BASE_BRANCH) \
 	  $(MONOREPO_ROOT)
 
+build-rt:
+	cp .dockerignore $(MONOREPO_ROOT)
+	docker build \
+	  --build-arg BUILDKIT_INLINE_CACHE=1 \
+	  --progress=plain \
+	  --build-arg OVERLEAF_BASE_TAG \
+	  --build-arg MONOREPO_REVISION \
+	  --cache-from $(OVERLEAF_LATEST) \
+	  --cache-from $(OVERLEAF_BRANCH) \
+	  --file Dockerfile-rt \
+	  --tag $(OVERLEAF_TAG) \
+	  --tag $(OVERLEAF_BRANCH) \
+	  $(MONOREPO_ROOT)
+
+	docker tag $(OVERLEAF_TAG) sharelatex/sharelatex:rt
+
+build-web:
+	cp .dockerignore $(MONOREPO_ROOT)
+	docker build \
+	  --build-arg BUILDKIT_INLINE_CACHE=1 \
+	  --progress=plain \
+	  --build-arg OVERLEAF_BASE_TAG \
+	  --build-arg MONOREPO_REVISION \
+	  --cache-from $(OVERLEAF_LATEST) \
+	  --cache-from $(OVERLEAF_BRANCH) \
+	  --file Dockerfile-web \
+	  --tag $(OVERLEAF_TAG) \
+	  --tag $(OVERLEAF_BRANCH) \
+	  $(MONOREPO_ROOT)
+
+	docker tag $(OVERLEAF_TAG) sharelatex/sharelatex:web
+build-web-rt:
+	cp .dockerignore $(MONOREPO_ROOT)
+	docker build \
+	  --build-arg BUILDKIT_INLINE_CACHE=1 \
+	  --progress=plain \
+	  --build-arg OVERLEAF_BASE_TAG \
+	  --build-arg MONOREPO_REVISION \
+	  --cache-from $(OVERLEAF_LATEST) \
+	  --cache-from $(OVERLEAF_BRANCH) \
+	  --file Dockerfile-web-rt \
+	  --tag $(OVERLEAF_TAG) \
+	  --tag $(OVERLEAF_BRANCH) \
+	  $(MONOREPO_ROOT)
+
+	docker tag $(OVERLEAF_TAG) sharelatex/sharelatex:$(BRANCH_NAME)
+
+
+
 
 build-community:
 	cp .dockerignore $(MONOREPO_ROOT)

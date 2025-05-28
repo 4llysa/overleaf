@@ -205,7 +205,7 @@ const settings = {
   // spoofed. This is recommended.
   security: {
     sessionSecret:
-      process.env.OVERLEAF_SESSION_SECRET || process.env.CRYPTO_RANDOM,
+      process.env.OVERLEAF_SESSION_SECRET || "foo"|| process.env.CRYPTO_RANDOM,
   },
 
   csp: {

@@ -92,6 +92,7 @@ RUN touch $SITE_MAINTENANCE_FILE
 ENV OVERLEAF_CONFIG /etc/overleaf/settings.js
 
 ENV WEB_API_USER "overleaf"
+ENV WEB_API_PASSWORD "overleaf"
 ENV ADMIN_PRIVILEGE_AVAILABLE "true"
 
 ENV OVERLEAF_APP_NAME "Overleaf Community Edition"

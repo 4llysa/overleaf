@@ -512,9 +512,6 @@ build_pug:
 build:
 	docker build \
 		--build-arg SENTRY_RELEASE \
-		--cache-from $(IMAGE_CI)-webpack \
-		--cache-from $(IMAGE_CI)-pug \
-		--cache-from $(IMAGE_REPO_FINAL) \
 		--tag $(IMAGE_REPO_FINAL) \
 		--target app \
 		--file Dockerfile \

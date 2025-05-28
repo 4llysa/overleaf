@@ -1,0 +1,80 @@
+# ---------------------------------------------
+# Overleaf Community Edition - Web Service Only
+# ---------------------------------------------
+
+ARG OVERLEAF_BASE_TAG=sharelatex/sharelatex-base:latest
+FROM $OVERLEAF_BASE_TAG
+
+WORKDIR /overleaf
+
+# Add required source files for web service
+# -----------------------------------------
+ADD server-ce/genScript.js /overleaf/genScript.js
+ADD server-ce/services.js /overleaf/services.js
+ADD package.json package-lock.json /overleaf/
+ADD libraries/ /overleaf/libraries/
+ADD services/web/ /overleaf/services/web/
+
+# Add npm patches if needed
+# -------------------------
+ADD patches/ /overleaf/patches
+
+# Install npm dependencies and build webpack assets for web service
+# -----------------------------------------------------------------
+RUN --mount=type=cache,target=/root/.cache \
+    --mount=type=cache,target=/root/.npm \
+    --mount=type=cache,target=/overleaf/services/web/node_modules/.cache,id=server-ce-webpack-cache \
+    --mount=type=tmpfs,target=/tmp true \
+&&  node genScript install | bash \
+&&  node genScript compile | bash
+# Copy runit service startup script for web service only
+# ------------------------------------------------------
+ADD server-ce/runit/web-overleaf /etc/service/web
+
+# Copy runit global settings if required
+# --------------------------------------
+ADD server-ce/config/env.sh /etc/overleaf/env.sh
+
+# Configure nginx (minimal for web service)
+# -----------------------------------------
+ADD server-ce/nginx/nginx.conf.template /etc/nginx/templates/nginx.conf.template
+ADD server-ce/nginx/overleaf.conf /etc/nginx/sites-enabled/overleaf.conf
+
+# Configure log rotation for web service
+# --------------------------------------
+ADD server-ce/logrotate/overleaf /etc/logrotate.d/overleaf
+RUN chmod 644 /etc/logrotate.d/overleaf
+
+# Copy app settings files
+# -----------------------
+COPY server-ce/config/settings.js /etc/overleaf/settings.js
+
+# Set Environment Variables
+# -------------------------
+ENV OVERLEAF_CONFIG /etc/overleaf/settings.js
+
+ENV WEB_API_USER "overleaf"
+ENV WEB_API_PASSWORD "overleaf"
+ENV ADMIN_PRIVILEGE_AVAILABLE "true"
+
+ENV OVERLEAF_APP_NAME "Overleaf Community Edition - Web Only"
+
+ENV OPTIMISE_PDF "true"
+
+# Phusion Image timeouts before sending SIGKILL to processes
+# ----------------------------------------------------------
+ENV KILL_PROCESS_TIMEOUT 55
+ENV KILL_ALL_PROCESSES_TIMEOUT 55
+ENV GRACEFUL_SHUTDOWN_DELAY_SECONDS 1
+
+ENV NODE_ENV "production"
+ENV LOG_LEVEL "info"
+
+EXPOSE 80
+
+ENTRYPOINT ["/sbin/my_init"]
+
+# Store the revision (optional)
+# -----------------------------
+ARG MONOREPO_REVISION
+RUN echo "monorepo-server-ce-web,$MONOREPO_REVISION" > /var/www/revisions.txt
