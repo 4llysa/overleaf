@@ -20,6 +20,9 @@ const TpdsUpdateSender = require('../ThirdPartyDataStore/TpdsUpdateSender')
 const SplitTestHandler = require('../SplitTests/SplitTestHandler')
 const EditorController = require('../Editor/EditorController')
 
+const dataPath = "/overleaf/services/web/app/templates/project_files"
+const outputPath = "/var/lib/overleaf/data/compiles/"
+
 const MONTH_NAMES = [
   'January',
   'February',
@@ -107,6 +110,7 @@ async function createExampleProject(ownerId, projectName) {
   return project
 }
 
+// Create a project from an aexisting template. Different from createTemplate.
 async function createTemplateProject(ownerId, projectName) {
   const project = await _createBlankProject(ownerId, projectName)
 
@@ -419,9 +423,61 @@ async function _buildTemplate(templateName, userId, projectName) {
   return output.split('\n')
 }
 
-async function _createTemplate(){
-
+async function createTemplate(ownerId, projectName){
+  const project = await createBasicProject(ownerId, projectName)
+  await templateUpdate(project._id, ownerId)
+  return project
 }
+
+async function templateUpdate(projectId, ownerId){
+  console.log("Copying")
+  const src = outputPath + projectId + "-" + ownerId
+  const dest = dataPath + projectId + "-" + ownerId
+  const bannedFiles = ['output.aux', 'output.fdb_latexmk', 'output.fls', 'output.log', 'output.pdf', 'output.stdout', 'output.synctex.gz', '.project-sync-state'];
+
+  resetFolder(dest)
+
+    fse.copy(src, dest, err => {
+
+        if (err) {
+          console.error(`Error when copying ${src} to ${dest}:`, err)
+          return
+        }
+
+        fse.readdir(dest, (err, files) => {
+        if (err) {
+            console.error(`Erreur when reading folder: ${err}`)
+            return
+        }
+
+        files.forEach(file => {
+
+            const filePath = path.join(dest, file)
+
+            fse.stat(filePath, (err, stats) => {
+
+                if (err) {
+                    console.error(`Error getting stats of file: ${filePath}, ${err}`);
+                    return;
+                }
+
+                if (bannedFiles.includes(path.basename(filePath))) {
+                   fse.remove(filePath, err => {
+                        if (err) {
+                            console.error(`Couldn't delete file: ${filePath}, ${err}`)
+                            return
+                        }
+                    });
+                }
+           });
+       });
+    console.log("Source: " + src)
+    console.log("Destination: " + dest)
+    })
+  })
+}
+
+
 
 module.exports = {
   createBlankProject: callbackify(createBlankProject),
