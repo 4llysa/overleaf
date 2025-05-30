@@ -96,7 +96,7 @@ async function createBasicProject(ownerId, projectName) {
   return project
 }
 
-async function createTemplateProject(ownerId, projectName) {
+async function createExampleProject(ownerId, projectName) {
   const project = await _createBlankProject(ownerId, projectName)
 
   await _addExampleProjectFiles(ownerId, projectName, project)
@@ -107,7 +107,7 @@ async function createTemplateProject(ownerId, projectName) {
   return project
 }
 
-async function createExampleProject(ownerId, projectName) {
+async function createTemplateProject(ownerId, projectName) {
   const project = await _createBlankProject(ownerId, projectName)
 
   await _addTemplateProjectFiles(ownerId, projectName, project, templateProjectDir)
@@ -176,7 +176,9 @@ async function _addExampleProjectFiles(ownerId, projectName, project) {
   )
 }
 
-async function addFolder(projectId, ownerId, parentId, name, itemPath) {
+async function addTemplateFolder(projectId, ownerId, parentId, name) {
+  console.log("on ajoute un dossier")
+  console.log("dossier ajouté : ", name)
   const doc = await EditorController.promises.addFolder(
     projectId,
     parentId,
@@ -185,15 +187,16 @@ async function addFolder(projectId, ownerId, parentId, name, itemPath) {
     ownerId
   )
 
-  await recAddFiles(projectId, ownerId, parentId, name, itemPath)
+  //await recAddFiles(projectId, ownerId, parentId, name, itemPath)
   return doc._id.toString()
 }
 
-async function addFile(ownerId, project, itemPath) {
+async function addTemplateFile(ownerId, projectId, itemPath, parentId) {
+  console.log("on ajoute un fichier")
   try {
     await ProjectEntityUpdateHandler.promises.addFile(
-          project._id,
-          project.rootFolder[0]._id,
+          projectId,
+          parentId,
           path.basename(itemPath),
           itemPath,
           null,
@@ -206,19 +209,18 @@ async function addFile(ownerId, project, itemPath) {
   }
 }
 
-async function addDocFile(ownerId, projectName, project, filespath, itemPath) {
+async function addDocFile(ownerId, projectName, projectId, filespath, itemPath, parentId, localPath) {
+  console.log("projectName : ", projectName)
   console.log("itemPath : ", itemPath)
   const filepath = path.join(filespath, itemPath)
-  console.log("filepath : ", filepath)
-  console.log("filespath jointé avec basename(itemPath) : ", path.join(filespath, path.basename(itemPath)))
   const bibDocLines = await _buildTemplate(
-    `${path.join(filespath, path.basename(itemPath))}`,
+    `${path.join(localPath, path.basename(itemPath))}`,
     ownerId,
     projectName
   )
   await ProjectEntityUpdateHandler.promises.addDoc(
-    project._id,
-    project.rootFolder[0]._id,
+    projectId,
+    parentId,
     path.basename(itemPath),
     bibDocLines,
     ownerId,
@@ -226,24 +228,78 @@ async function addDocFile(ownerId, projectName, project, filespath, itemPath) {
   )
 }
 
-async function recAddFiles(ownerId, projectName, project, filespath, templatePath) {
+/*async function recAddFiles(ownerId, projectName, project, filespath, templatePath) {
   const items = await fse.readdir(templatePath)
-
+  console.log("recAddFiles a été appelé avec templatePath = ", templatePath)
   for (const item of items){
     const itemPath = path.join(templatePath, item)
     const stat = await fse.stat(itemPath)
     if (stat.isDirectory() && item != ".git"){
-      await addFolder(project._id, ownerId, project.rootFolder[0]._id, item, itemPath)
+      const newFolderId = await addFolder(project._id, ownerId, project.rootFolder[0]._id, item, itemPath)
+      await recAddFiles(ownerId, projectName, project, filespath, templatePath)
     } else {
       const itemPath = path.join(templatePath, item)
       const isDoc = itemPath.match(/\.bib$/)
       if (isDoc){
         await addDocFile(ownerId, projectName, project, filespath, itemPath)
       } else if (path.basename(itemPath).localeCompare("main.tex")){
-        await addFile(ownerId, project, itemPath)
+        await addFile(ownerId, project, itemPath, )
       }
     }
   }
+}*/
+
+async function recAddFiles(currentPath, projectId, ownerId, parentId, projectName, localPath){
+
+  const items = await fse.readdir(currentPath)
+
+  console.log("localPath : ", localPath)
+  for (const item of items) {
+    console.log("on traite ", item)
+    const itemPath = path.join(currentPath, item)
+    const stat = await fse.stat(itemPath)
+
+    if (stat.isDirectory() && item != ".git") {
+      console.log("on traite un dossier")
+      const newFolderId = await addTemplateFolder(projectId, ownerId, parentId, item)
+      await recAddFiles(itemPath, projectId, ownerId, newFolderId, projectName, path.join(localPath, item))
+    } else if (stat.isFile()) {
+      const itemPath = path.join(currentPath, item)
+      const isDoc = itemPath.match(/\.bib$/)
+      if (isDoc){
+        console.log("on traite de la doc")
+        await addDocFile(ownerId, projectName, projectId, currentPath, itemPath, parentId, localPath)
+      } else if (path.basename(itemPath).localeCompare("main.tex")){
+        console.log("on traite un fichier")
+        await addTemplateFile(ownerId, projectId, itemPath, parentId)
+      }
+    } 
+  }
+}
+
+/*async function _addTemplateProjectFiles(ownerId, projectName, project, filespath) {
+  temp = path.join(filespath, 'main.tex')
+  const main = temp
+  const mainDocLines = await _buildTemplate(
+    `${main}`,
+    ownerId,
+    projectName
+  )
+  await _createRootDoc(project, ownerId, mainDocLines)
+  const templatePath = path.join(
+    __dirname,
+    `/../../../templates/project_files`,
+    templateProjectDir
+  )
+
+  await recAddFiles(ownerId, projectName, project, filespath, templatePath)
+}*/
+
+function getRootId(projectId) {
+  let decimalValue = BigInt('0x' + projectId)
+  let decrementedValue = decimalValue - BigInt(1)
+  let decrementedHexString = decrementedValue.toString(16)
+  return decrementedHexString
 }
 
 async function _addTemplateProjectFiles(ownerId, projectName, project, filespath) {
@@ -260,8 +316,9 @@ async function _addTemplateProjectFiles(ownerId, projectName, project, filespath
     `/../../../templates/project_files`,
     templateProjectDir
   )
-
-  await recAddFiles(ownerId, projectName, project, filespath, templatePath)
+  console.log("on a filespath : ", filespath)
+  console.log("et templatePath : ", templatePath)
+  await recAddFiles(templatePath, project._id, ownerId, getRootId(project._id), projectName, templateProjectDir)
 }
 
 async function _createBlankProject(
@@ -360,6 +417,10 @@ async function _buildTemplate(templateName, userId, projectName) {
   }
   const output = _.template(template.toString())(data)
   return output.split('\n')
+}
+
+async function _createTemplate(){
+
 }
 
 module.exports = {
