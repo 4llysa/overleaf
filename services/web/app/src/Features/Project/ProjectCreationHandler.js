@@ -1,4 +1,4 @@
-  const OError = require('@overleaf/o-error')
+const OError = require('@overleaf/o-error')
 const metrics = require('@overleaf/metrics')
 const Settings = require('@overleaf/settings')
 const { ObjectId } = require('mongodb')
@@ -199,14 +199,14 @@ async function addTemplateFile(ownerId, projectId, itemPath, parentId) {
   console.log("on ajoute un fichier")
   try {
     await ProjectEntityUpdateHandler.promises.addFile(
-          projectId,
-          parentId,
-          path.basename(itemPath),
-          itemPath,
-          null,
-          ownerId,
-          null
-        )
+      projectId,
+      parentId,
+      path.basename(itemPath),
+      itemPath,
+      null,
+      ownerId,
+      null
+    )
   } catch (err) {
     console.error(err.message)
     return "0"
@@ -253,7 +253,7 @@ async function addDocFile(ownerId, projectName, projectId, filespath, itemPath, 
   }
 }*/
 
-async function recAddFiles(currentPath, projectId, ownerId, parentId, projectName, localPath){
+async function recAddFiles(currentPath, projectId, ownerId, parentId, projectName, localPath) {
 
   const items = await fse.readdir(currentPath)
 
@@ -270,14 +270,14 @@ async function recAddFiles(currentPath, projectId, ownerId, parentId, projectNam
     } else if (stat.isFile()) {
       const itemPath = path.join(currentPath, item)
       const isDoc = itemPath.match(/\.bib$/)
-      if (isDoc){
+      if (isDoc) {
         console.log("on traite de la doc")
         await addDocFile(ownerId, projectName, projectId, currentPath, itemPath, parentId, localPath)
-      } else if (path.basename(itemPath).localeCompare("main.tex")){
+      } else if (path.basename(itemPath).localeCompare("main.tex")) {
         console.log("on traite un fichier")
         await addTemplateFile(ownerId, projectId, itemPath, parentId)
       }
-    } 
+    }
   }
 }
 
@@ -423,56 +423,57 @@ async function _buildTemplate(templateName, userId, projectName) {
   return output.split('\n')
 }
 
-async function createTemplate(ownerId, projectName){
+async function createTemplate(ownerId, projectName) {
   const project = await createBasicProject(ownerId, projectName)
   await templateUpdate(project._id, ownerId)
   return project
 }
 
-async function templateUpdate(projectId, ownerId){
-  console.log("Copying")
+
+async function saveAsTemplate(projectId, ownerId) {
+  console.log("Copying template")
   const src = outputPath + projectId + "-" + ownerId
   const dest = dataPath + projectId + "-" + ownerId
   const bannedFiles = ['output.aux', 'output.fdb_latexmk', 'output.fls', 'output.log', 'output.pdf', 'output.stdout', 'output.synctex.gz', '.project-sync-state'];
 
   resetFolder(dest)
 
-    fse.copy(src, dest, err => {
+  fse.copy(src, dest, err => {
 
-        if (err) {
-          console.error(`Error when copying ${src} to ${dest}:`, err)
-          return
-        }
+    if (err) {
+      console.error(`Error when copying ${src} to ${dest}:`, err)
+      return
+    }
 
-        fse.readdir(dest, (err, files) => {
-        if (err) {
-            console.error(`Erreur when reading folder: ${err}`)
-            return
-        }
+    fse.readdir(dest, (err, files) => {
+      if (err) {
+        console.error(`Erreur when reading folder: ${err}`)
+        return
+      }
 
-        files.forEach(file => {
+      files.forEach(file => {
 
-            const filePath = path.join(dest, file)
+        const filePath = path.join(dest, file)
 
-            fse.stat(filePath, (err, stats) => {
+        fse.stat(filePath, (err, stats) => {
 
-                if (err) {
-                    console.error(`Error getting stats of file: ${filePath}, ${err}`);
-                    return;
-                }
+          if (err) {
+            console.error(`Error getting stats of file: ${filePath}, ${err}`);
+            return;
+          }
 
-                if (bannedFiles.includes(path.basename(filePath))) {
-                   fse.remove(filePath, err => {
-                        if (err) {
-                            console.error(`Couldn't delete file: ${filePath}, ${err}`)
-                            return
-                        }
-                    });
-                }
-           });
-       });
-    console.log("Source: " + src)
-    console.log("Destination: " + dest)
+          if (bannedFiles.includes(path.basename(filePath))) {
+            fse.remove(filePath, err => {
+              if (err) {
+                console.error(`Couldn't delete file: ${filePath}, ${err}`)
+                return
+              }
+            });
+          }
+        });
+      });
+      console.log("Source: " + src)
+      console.log("Destination: " + dest)
     })
   })
 }
