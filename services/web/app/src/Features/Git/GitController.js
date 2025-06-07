@@ -1,4 +1,4 @@
-const path = require('path')
+/*const path = require('path')
 const fs = require('fs-extra')
 const dataPath = "/var/lib/overleaf/data/git/"
 const outputPath = "/var/lib/overleaf/data/compiles/"
@@ -479,3 +479,4 @@ GitController = {
 }
 
 module.exports = {GitController, gitClone, gitUpdate}
+*/

@@ -20,7 +20,7 @@ COPY services/history-v1/package.json /overleaf/services/history-v1/
 COPY libraries/ /overleaf/libraries/
 COPY patches/ /overleaf/patches/
 
-RUN cd /overleaf && npm ci --quiet
+RUN cd /overleaf && npm i --quiet
 
 COPY services/history-v1/ /overleaf/services/history-v1/
 

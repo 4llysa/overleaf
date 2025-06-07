@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-global-env
+  labels:
+    app: {{ .Release.Name }}-global-env
+data:
+  CHAT_HOST: "{{ .Release.Name }}-chat"
+  CLSI_HOST: "{{ .Release.Name }}-clsi"
+  CONTACTS_HOST: "{{ .Release.Name }}-contacts"
+  DOCSTORE_HOST: "{{ .Release.Name }}-docstore"
+  DOCUMENT_UPDATER_HOST: "{{ .Release.Name }}-document-updater"
+  FILESTORE_HOST: "{{ .Release.Name }}-filestore"
+  GRACEFUL_SHUTDOWN_DELAY_SECONDS: "0"
+  HISTORY_V1_HOST: "{{ .Release.Name }}-history-v1"
+  LISTEN_ADDRESS: "0.0.0.0"
+  MONGO_HOST: "{{ .Release.Name }}-mongo-service"
+  MONGO_URL: "mongodb://{{ .Release.Name }}-mongo-service:27017/sharelatex?directConnection=true"
+  NOTIFICATIONS_HOST: "{{ .Release.Name }}-notifications"
+  PROJECT_HISTORY_HOST: "{{ .Release.Name }}-project-history"
+  REALTIME_HOST: "{{ .Release.Name }}-real-time"
+  REDIS_HOST: "{{ .Release.Name }}-redis"
+  SESSION_SECRET: "foo"
+  WEBPACK_HOST: "webpack"
+  WEB_API_PASSWORD: "overleaf"
+  WEB_API_USER: "overleaf"
+  WEB_HOST: "{{ .Release.Name }}-web"
+  OVERLEAF_ADMIN_EMAIL: "admin@example.fr"
+  # For history-v1 only
+  MONGO_CONNECTION_STRING: "mongodb://{{ .Release.Name }}-mongo-service:27017/sharelatex?directConnection=true"
+  OT_JWT_AUTH_KEY: "secureKey"
+  OT_JWT_AUTH_ALG: "HS256"
+  STAGING_PASSWORD: "password" 
+  NODE_ENV: "production"

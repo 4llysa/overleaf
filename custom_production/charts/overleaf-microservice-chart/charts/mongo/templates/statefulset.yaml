@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-mongo
+  labels:
+    app: {{ .Release.Name }}-mongo
+spec:
+  serviceName: {{ .Release.Name }}-mongo-service
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-mongo
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-mongo
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-mongo
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+          - mongod
+          - "--replSet"
+          - rs0
+          - "--bind_ip_all"
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-data
+              mountPath: /data/db
+            - name: mongo-init
+              mountPath: /docker-entrypoint-initdb.d/mongodb-init-replica-set.js
+              subPath: mongodb-init-replica-set.js
+          env:
+            - name: MONGO_INITDB_DATABASE
+              value: "sharelatex"
+      volumes:
+        - name: mongo-data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc-mongo
+        - name: mongo-init
+          configMap:
+            name: {{ .Release.Name }}-mongo-configmap

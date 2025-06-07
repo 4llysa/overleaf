@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-pv-clsi-cache
+spec:
+  capacity:
+    storage: {{ .Values.persistence.clsiCache.size }}
+  accessModes:
+    - {{ .Values.persistence.clsiCache.accessModes | quote }}
+  hostPath:
+    path: /tmp/{{ .Release.Name }}-pv-clsi-cache
+  storageClassName: standard
+  claimRef:
+    name: {{ .Release.Name }}-pvc-clsi-cache
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-pv-clsi-output
+spec:
+  capacity:
+    storage: {{ .Values.persistence.clsiOutput.size }}
+  accessModes:
+    - {{ .Values.persistence.clsiOutput.accessModes | quote }}
+  hostPath:
+    path: /tmp/{{ .Release.Name }}-pv-clsi-output
+  storageClassName: standard
+  claimRef:
+    name: {{ .Release.Name }}-pvc-clsi-output
+    namespace: {{ .Release.Namespace }}

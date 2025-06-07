@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-mongo-configmap
+  labels:
+    app: {{ .Release.Name }}-mongo
+data:
+  mongodb-init-replica-set.js: | 
+    rs.initiate({
+      _id: "rs0",
+      members: [
+        { _id: 0, host: "overleaf-mongo-0.overleaf-mongo-service.overleaf.svc.cluster.local:27017" }
+      ]
+    })

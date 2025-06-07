@@ -29,7 +29,7 @@ COPY services/web/package.json /overleaf/services/web/
 COPY libraries/ /overleaf/libraries/
 COPY patches/ /overleaf/patches/
 
-RUN cd /overleaf && NODE_ENV=production npm ci --quiet
+RUN cd /overleaf && NODE_ENV=production npm i --quiet
 
 FROM deps-prod as deps
 
@@ -67,7 +67,7 @@ RUN find /overleaf/services/web/public -name '*.js.map' -delete
 FROM deps-prod as pug
 COPY services/web /overleaf/services/web
 # Omit Server Pro/CE specific scripts from SaaS image
-RUN rm /overleaf/services/web/modules/server-ce-scripts -rf
+#RUN rm /overleaf/services/web/modules/server-ce-scripts -rf
 RUN OVERLEAF_CONFIG=/overleaf/services/web/config/settings.overrides.saas.js npm run precompile-pug
 
 
@@ -84,3 +84,8 @@ ENV SENTRY_RELEASE=$SENTRY_RELEASE
 COPY --from=webpack-no-sourcemaps /overleaf/services/web/public /overleaf/services/web/public
 USER node
 CMD ["node", "--expose-gc", "app.js"]
+
+
+FROM nginx:alpine AS front
+COPY --from=app /overleaf/services/web/public /usr/share/nginx/html
+

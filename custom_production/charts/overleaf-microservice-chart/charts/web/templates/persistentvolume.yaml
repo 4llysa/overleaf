@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-pv-sharelatex-data
+spec:
+  capacity:
+    storage: {{ .Values.persistence.sharelatexData.size }}
+  accessModes:
+    - {{ .Values.persistence.accessModes }}
+  hostPath:
+    path: /tmp/{{ .Release.Name }}-pv-sharelatex-data
+  storageClassName: standard
+  claimRef:
+    name: {{ .Release.Name }}-pvc-sharelatex-data
+    namespace: {{ .Release.Namespace }}
+    
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-pv-web-data
+spec:
+  capacity:
+    storage: {{ .Values.persistence.webData.size }}
+  accessModes:
+    - {{ .Values.persistence.accessModes }}
+  hostPath:
+    path: /tmp/{{ .Release.Name }}-pv-web-data
+  storageClassName: standard
+  claimRef:
+    name: {{ .Release.Name }}-pvc-web-data
+    namespace: {{ .Release.Namespace }}

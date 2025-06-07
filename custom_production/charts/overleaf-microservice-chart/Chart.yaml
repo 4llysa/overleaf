@@ -1,0 +1,48 @@
+apiVersion: v2
+name: overleaf
+description: A Helm chart for deploying Overleaf services in microservice mode
+version: 1.0.0
+appVersion: "1.0"
+dependencies:
+  - name: chat
+    version: 1.0.0
+    repository: "file://charts/chat"
+  - name: clsi
+    version: 1.0.0
+    repository: "file://charts/clsi"
+  - name: mongo
+    version: 1.0.0
+    repository: "file://charts/mongo"
+  - name: redis
+    version: 1.0.0
+    repository: "file://charts/redis"
+  - name: web
+    version: 1.0.0
+    repository: "file://charts/web"
+  - name: contacts
+    version: 1.0.0
+    repository: "file://charts/contacts"
+  - name: docstore
+    version: 1.0.0
+    repository: "file://charts/docstore"
+  - name: document-updater
+    version: 1.0.0
+    repository: "file://charts/document-updater"
+  - name: filestore
+    version: 1.0.0
+    repository: "file://charts/filestore"
+  - name: history-v1
+    version: 1.0.0
+    repository: "file://charts/history-v1"
+  - name: notifications
+    version: 1.0.0
+    repository: "file://charts/notifications"
+  - name: project-history
+    version: 1.0.0
+    repository: "file://charts/project-history"
+  - name: real-time
+    version: 1.0.0
+    repository: "file://charts/real-time"
+  - name: front
+    version: 1.0.0
+    repository: "file://charts/front"

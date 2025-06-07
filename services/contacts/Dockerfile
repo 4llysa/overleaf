@@ -17,7 +17,7 @@ COPY services/contacts/package.json /overleaf/services/contacts/
 COPY libraries/ /overleaf/libraries/
 COPY patches/ /overleaf/patches/
 
-RUN cd /overleaf && npm ci --quiet
+RUN cd /overleaf && npm i --quiet
 
 COPY services/contacts/ /overleaf/services/contacts/
 

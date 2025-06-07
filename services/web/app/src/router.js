@@ -1,6 +1,6 @@
 const AdminController = require('./Features/ServerAdmin/AdminController')
 const ErrorController = require('./Features/Errors/ErrorController')
-const { GitController } = require('./Features/Git/GitController')
+//const { GitController } = require('./Features/Git/GitController')
 const ProjectController = require('./Features/Project/ProjectController')
 const ProjectApiController = require('./Features/Project/ProjectApiController')
 const ProjectListController = require('./Features/Project/ProjectListController')
@@ -291,7 +291,7 @@ function initialize(webRouter, privateApiRouter, publicApiRouter) {
 
   // .getMessages will generate an empty response for anonymous users.
   webRouter.get('/system/messages', SystemMessageController.getMessages)
-
+/*
   webRouter.get(
     '/ssh-key',
     AuthenticationController.requireLogin(),
@@ -333,6 +333,7 @@ function initialize(webRouter, privateApiRouter, publicApiRouter) {
     AuthenticationController.requireLogin(),
     GitController.push
   )
+  */
   webRouter.post(
     '/project/import',
     AuthenticationController.requireLogin(),

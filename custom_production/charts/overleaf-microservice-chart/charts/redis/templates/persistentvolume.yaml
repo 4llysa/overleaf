@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-pv-redis
+spec:
+  capacity:
+    storage: {{ .Values.persistence.size }}
+  accessModes:
+    - {{ .Values.persistence.accessModes }}
+  hostPath:
+    path: /tmp/{{ .Release.Name }}-pv-redis 
+  storageClassName: standard
+  claimRef:
+    name: {{ .Release.Name }}-pvc-redis
+    namespace: {{ .Release.Namespace }}

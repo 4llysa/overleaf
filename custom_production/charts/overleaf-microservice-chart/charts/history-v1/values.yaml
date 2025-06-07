@@ -1,0 +1,31 @@
+replicaCount: 1
+
+image:
+  repository: overleaf-history-v1
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3100
+
+persistence:
+  buckets:
+    size: 1Gi
+    accessModes: ReadWriteOnce
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+env:
+  OVERLEAF_EDITOR_ANALYTICS_BUCKET: "/buckets/analytics"
+  OVERLEAF_EDITOR_BLOBS_BUCKET: "/buckets/blobs"
+  OVERLEAF_EDITOR_CHUNKS_BUCKET: "/buckets/chunks"
+  OVERLEAF_EDITOR_PROJECT_BLOBS_BUCKET: "/buckets/project_blobs"
+  OVERLEAF_EDITOR_ZIPS_BUCKET: "/buckets/zips"
+  PERSISTOR_BACKEND: "fs"

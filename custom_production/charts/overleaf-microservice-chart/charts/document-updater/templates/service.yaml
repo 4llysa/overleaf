@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-document-updater
+  labels:
+    app: {{ .Release.Name }}-document-updater
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+  selector:
+    app: {{ .Release.Name }}-document-updater

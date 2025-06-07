@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-notifications
+  labels:
+    app: {{ .Release.Name }}-notifications
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-notifications
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-notifications
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-notifications
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-global-env

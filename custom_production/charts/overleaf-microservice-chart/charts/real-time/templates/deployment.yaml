@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-real-time
+  labels:
+    app: {{ .Release.Name }}-real-time
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-real-time
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-real-time
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-real-time
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 3026
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-global-env

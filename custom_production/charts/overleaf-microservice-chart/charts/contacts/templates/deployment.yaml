@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-contacts
+  labels:
+    app: {{ .Release.Name }}-contacts
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-contacts
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-contacts
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-contacts
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-global-env

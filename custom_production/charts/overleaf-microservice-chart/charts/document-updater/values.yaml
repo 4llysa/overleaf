@@ -1,0 +1,18 @@
+replicaCount: 1
+
+image:
+  repository: overleaf-document-updater
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3003
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

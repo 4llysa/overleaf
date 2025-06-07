@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-pv-history-v1-buckets
+spec:
+  capacity:
+    storage: {{ .Values.persistence.buckets.size }}
+  accessModes:
+    - {{ .Values.persistence.buckets.accessModes }}
+  hostPath:
+    path: /tmp/{{ .Release.Name }}-pv-history-v1-buckets
+  storageClassName: standard
+  claimRef:
+    name: {{ .Release.Name }}-pvc-history-v1-buckets
+    namespace: {{ .Release.Namespace }}

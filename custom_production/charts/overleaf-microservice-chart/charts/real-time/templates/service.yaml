@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-real-time
+  labels:
+    app: {{ .Release.Name }}-real-time
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 3026
+  selector:
+    app: {{ .Release.Name }}-real-time

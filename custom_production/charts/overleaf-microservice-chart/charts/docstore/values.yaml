@@ -1,0 +1,18 @@
+replicaCount: 1
+
+image:
+  repository: overleaf-docstore
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3016
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

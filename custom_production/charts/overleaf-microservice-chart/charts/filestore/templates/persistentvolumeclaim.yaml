@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-pvc-filestore-public-files
+spec:
+  accessModes:
+    - {{ .Values.persistence.publicFiles.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.publicFiles.size }}
+  storageClassName:  {{ .Values.persistence.publicFiles.className }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-pvc-filestore-template-files
+spec:
+  accessModes:
+    - {{ .Values.persistence.templateFiles.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.templateFiles.size }}
+  storageClassName:  {{ .Values.persistence.templateFiles.className }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-pvc-filestore-uploads
+spec:
+  accessModes:
+    - {{ .Values.persistence.uploads.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.uploads.size }}
+  storageClassName:  {{ .Values.persistence.uploads.className }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-pvc-filestore-user-files
+spec:
+  accessModes:
+    - {{ .Values.persistence.userFiles.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.userFiles.size }}
+  storageClassName:  {{ .Values.persistence.userFiles.className }}

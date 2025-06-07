@@ -10,6 +10,9 @@ chown www-data:www-data /var/lib/overleaf/data/user_files
 mkdir -p /var/lib/overleaf/data/compiles
 chown www-data:www-data /var/lib/overleaf/data/compiles
 
+mkdir -p /var/lib/overleaf/data/git/keys
+chown www-data:www-data /var/lib/overleaf/data/git
+
 mkdir -p /var/lib/overleaf/data/output
 chown www-data:www-data /var/lib/overleaf/data/output
 

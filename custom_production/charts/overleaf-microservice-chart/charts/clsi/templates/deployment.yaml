@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-clsi
+  labels:
+    app: {{ .Release.Name }}-clsi
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-clsi
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-clsi
+    spec:
+      securityContext:
+        runAsUser: 0
+      initContainers:
+        - name: init-chown
+          image: alpine:latest  # Une image légère qui contient la commande `chown`
+          command: ["sh", "-c", "chown -R 1000:1000 /overleaf/services/clsi/compiles && chown -R 1000:1000 /overleaf/services/clsi/cache"]
+          volumeMounts:
+            - name: compiles
+              mountPath: /overleaf/services/clsi/compiles
+            - name: clsi-cache
+              mountPath: /overleaf/services/clsi/cache
+            - name: clsi-output
+              mountPath: /overleaf/services/clsi/output
+      containers:
+        - name: clsi
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-global-env
+          env:
+            - name: DOCKER_RUNNER
+              value: "{{ .Values.env.DOCKER_RUNNER }}"
+            - name: TEXLIVE_IMAGE
+              value: "{{ .Values.env.TEXLIVE_IMAGE }}"
+            - name: COMPILES_HOST_DIR
+              value: "{{ .Values.env.COMPILES_HOST_DIR }}"
+          volumeMounts:
+            - name: compiles
+              mountPath: /overleaf/services/clsi/compiles
+            - name: docker-socket
+              mountPath: /var/run/docker.sock
+            - name: clsi-cache
+              mountPath: /overleaf/services/clsi/cache
+            - name: clsi-output
+              mountPath: /overleaf/services/clsi/output
+          ports:
+            - containerPort: {{ .Values.service.port }}
+      volumes:
+        - name: compiles
+          hostPath:
+            path: {{ .Values.env.COMPILES_HOST_DIR }}
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+        - name: clsi-cache
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc-clsi-cache
+        - name: clsi-output
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc-clsi-output

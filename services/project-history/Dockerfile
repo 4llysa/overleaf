@@ -17,7 +17,7 @@ COPY services/project-history/package.json /overleaf/services/project-history/
 COPY libraries/ /overleaf/libraries/
 COPY patches/ /overleaf/patches/
 
-RUN cd /overleaf && npm ci --quiet
+RUN cd /overleaf && npm i --quiet
 
 COPY services/project-history/ /overleaf/services/project-history/
 

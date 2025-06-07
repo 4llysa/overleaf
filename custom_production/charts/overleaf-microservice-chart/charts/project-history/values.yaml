@@ -1,0 +1,18 @@
+replicaCount: 1
+
+image:
+  repository: overleaf-project-history
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3054
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

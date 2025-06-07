@@ -17,7 +17,7 @@ COPY services/notifications/package.json /overleaf/services/notifications/
 COPY libraries/ /overleaf/libraries/
 COPY patches/ /overleaf/patches/
 
-RUN cd /overleaf && npm ci --quiet
+RUN cd /overleaf && npm i --quiet
 
 COPY services/notifications/ /overleaf/services/notifications/
 

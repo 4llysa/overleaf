@@ -1,0 +1,35 @@
+replicaCount: 1
+
+image:
+  repository: overleaf-clsi
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3013
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+persistence:
+  clsiCache:
+    enabled: true
+    storageClass: standard
+    accessModes: ReadWriteOnce
+    size: 1Gi
+  clsiOutput:
+    enabled: true
+    storageClass: standard
+    accessModes: ReadWriteOnce
+    size: 1Gi
+
+env:
+  DOCKER_RUNNER: "true"
+  TEXLIVE_IMAGE: "texlive-full"
+  COMPILES_HOST_DIR: "/tmp/compiles"

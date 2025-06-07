@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-history-v1
+  labels:
+    app: {{ .Release.Name }}-history-v1
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-history-v1
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-history-v1
+    spec:
+      initContainers:
+        - name: init-chown
+          image: alpine:latest  # Une image légère qui contient la commande `chown`
+          command: ["sh", "-c", "chown -R 1000:1000 /buckets"]
+          volumeMounts:
+            - name: buckets
+              mountPath: /buckets
+      containers:
+        - name: {{ .Release.Name }}-history-v1
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-global-env
+          env:
+            - name: OVERLEAF_EDITOR_ANALYTICS_BUCKET
+              value: "{{ .Values.env.OVERLEAF_EDITOR_ANALYTICS_BUCKET }}"
+            - name: OVERLEAF_EDITOR_BLOBS_BUCKET
+              value: "{{ .Values.env.OVERLEAF_EDITOR_BLOBS_BUCKET }}"
+            - name: OVERLEAF_EDITOR_CHUNKS_BUCKET
+              value: "{{ .Values.env.OVERLEAF_EDITOR_CHUNKS_BUCKET }}"
+            - name: OVERLEAF_EDITOR_PROJECT_BLOBS_BUCKET
+              value: "{{ .Values.env.OVERLEAF_EDITOR_PROJECT_BLOBS_BUCKET }}"
+            - name: OVERLEAF_EDITOR_ZIPS_BUCKET
+              value: "{{ .Values.env.OVERLEAF_EDITOR_ZIPS_BUCKET }}"
+            - name: PERSISTOR_BACKEND
+              value: "{{ .Values.env.PERSISTOR_BACKEND }}"
+          volumeMounts:
+            - name: buckets
+              mountPath: /buckets
+          # command: ["sh", "-c", "while true; do sleep 3600; done"]
+      volumes:
+        - name: buckets
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc-history-v1-buckets

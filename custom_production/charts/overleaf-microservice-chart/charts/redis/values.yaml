@@ -1,0 +1,24 @@
+replicaCount: 1
+
+image:
+  repository: redis
+  tag: "5"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 6379
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+persistence:
+  enabled: true
+  storageClass: "standard"
+  accessModes: ReadWriteOnce
+  size: 1Gi

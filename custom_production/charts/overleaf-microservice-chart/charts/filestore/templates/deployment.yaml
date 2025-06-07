@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-filestore
+  labels:
+    app: {{ .Release.Name }}-filestore
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-filestore
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-filestore
+    spec:
+      initContainers:
+        - name: init-chown
+          image: alpine:latest  # Une image légère qui contient la commande `chown`
+          command: ["sh", "-c", "chown -R 1000:1000 /overleaf/services/filestore/public_files && chown -R 1000:1000 /overleaf/services/filestore/template_files && chown -R 1000:1000 /overleaf/services/filestore/uploads && chown -R 1000:1000 /overleaf/services/filestore/user_files"]
+          volumeMounts:
+            - name: public-files
+              mountPath: /overleaf/services/filestore/public_files
+            - name: template-files
+              mountPath: /overleaf/services/filestore/template_files
+            - name: uploads
+              mountPath: /overleaf/services/filestore/uploads
+            - name: user-files
+              mountPath: /overleaf/services/filestore/user_files
+      containers:
+        - name: {{ .Release.Name }}-filestore
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-global-env
+          volumeMounts:
+            - name: public-files
+              mountPath: /overleaf/services/filestore/public_files
+            - name: template-files
+              mountPath: /overleaf/services/filestore/template_files
+            - name: uploads
+              mountPath: /overleaf/services/filestore/uploads
+            - name: user-files
+              mountPath: /overleaf/services/filestore/user_files
+      volumes:
+        - name: public-files
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc-filestore-public-files
+        - name: template-files
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc-filestore-template-files
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc-filestore-uploads
+        - name: user-files
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc-filestore-user-files

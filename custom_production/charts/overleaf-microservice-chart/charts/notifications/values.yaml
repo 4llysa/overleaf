@@ -1,0 +1,18 @@
+replicaCount: 1
+
+image:
+  repository: overleaf-notifications
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3042
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

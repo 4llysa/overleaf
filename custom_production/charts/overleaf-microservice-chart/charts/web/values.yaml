@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  repository: overleaf-web
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3000
+
+persistence:
+  sharelatexData:
+    size: 1Gi
+  webData:
+    size: 1Gi
+  accessModes: ReadWriteOnce
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+env:
+  APP_NAME: "Overleaf CE"
+  ENABLED_LINKED_FILE_TYPES: "project_file,project_output_file"
+  EMAIL_CONFIRMATION_DISABLED: "true"
+  NODE_ENV: "production"
+  OVERLEAF_ALLOW_PUBLIC_ACCESS: "true"

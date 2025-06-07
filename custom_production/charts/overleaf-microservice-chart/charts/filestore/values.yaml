@@ -1,0 +1,36 @@
+replicaCount: 1
+
+image:
+  repository: overleaf-filestore
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3009
+
+persistence:
+  publicFiles:
+    size: 1Gi
+    accessModes: ReadWriteOnce
+    className: standard
+  templateFiles:
+    size: 1Gi
+    accessModes: ReadWriteOnce
+    className: standard
+  uploads:
+    size: 1Gi
+    accessModes: ReadWriteOnce
+    className: standard
+  userFiles:
+    size: 1Gi
+    accessModes: ReadWriteOnce
+    className: standard
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

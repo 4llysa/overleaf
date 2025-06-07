@@ -1,0 +1,172 @@
+volumes:
+  clsi-cache:
+  clsi-output:
+  filestore-public-files:
+  filestore-template-files:
+  filestore-uploads:
+  filestore-user-files:
+  mongo-data:
+  redis-data:
+  sharelatex-data:
+  web-data:
+  history-v1-buckets:
+
+services:
+  chat:
+    image: overleaf-chat
+    env_file:
+      - prod.env
+
+  clsi:
+    image: overleaf-clsi
+    env_file:
+      - prod.env
+    environment:
+      - DOCKER_RUNNER=true
+      - TEXLIVE_IMAGE=texlive-full # docker build texlive -t texlive-full
+      - COMPILES_HOST_DIR=${PWD}/compiles
+    user: root
+    volumes:
+      - ${PWD}/compiles:/overleaf/services/clsi/compiles
+      - ${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+      - clsi-cache:/overleaf/services/clsi/cache
+      - clsi-output:/overleaf/services/clsi/output
+
+  contacts:
+    image: overleaf-contacts
+    env_file:
+      - prod.env
+
+  docstore:
+    image: overleaf-docstore
+    env_file:
+      - prod.env
+
+  document-updater:
+    image: overleaf-document-updater
+    env_file:
+      - prod.env
+
+  filestore:
+    image: overleaf-filestore
+    env_file:
+      - prod.env
+#    environment:
+#      - ENABLE_CONVERSIONS=true
+    volumes:
+      - filestore-public-files:/overleaf/services/filestore/public_files
+      - filestore-template-files:/overleaf/services/filestore/template_files
+      - filestore-uploads:/overleaf/services/filestore/uploads
+      - filestore-user-files:/overleaf/services/filestore/user_files
+
+  history-v1:
+    image: overleaf-history-v1
+    env_file:
+        - prod.env
+    environment:
+      OVERLEAF_EDITOR_ANALYTICS_BUCKET: "/buckets/analytics"
+      OVERLEAF_EDITOR_BLOBS_BUCKET: "/buckets/blobs"
+      OVERLEAF_EDITOR_CHUNKS_BUCKET: "/buckets/chunks"
+      OVERLEAF_EDITOR_PROJECT_BLOBS_BUCKET: "/buckets/project_blobs"
+      OVERLEAF_EDITOR_ZIPS_BUCKET: "/buckets/zips"
+      PERSISTOR_BACKEND: fs
+    restart: always
+    volumes:
+        - history-v1-buckets:/buckets
+    depends_on:
+        - mongo
+  mongo:
+    image: mongo:6.0
+    command: --replSet overleaf
+    ports:
+      - "127.0.0.1:27017:27017" # for debugging
+    volumes:
+      - mongo-data:/data/db
+      - ../bin/shared/mongodb-init-replica-set.js:/docker-entrypoint-initdb.d/mongodb-init-replica-set.js
+    environment:
+      MONGO_INITDB_DATABASE: sharelatex
+    extra_hosts:
+      # Required when using the automatic database setup for initializing the
+      # replica set. This override is not needed when running the setup after
+      # starting up mongo.
+      - mongo:127.0.0.1
+
+  notifications:
+    image: overleaf-notifications
+    env_file:
+      - prod.env
+
+  project-history:
+    image: overleaf-project-history
+    env_file:
+        - prod.env
+
+  real-time:
+    image: overleaf-real-time
+    env_file:
+      - prod.env
+
+  redis:
+    image: redis:5
+    ports:
+      - "127.0.0.1:6379:6379" # for debugging
+    volumes:
+      - redis-data:/data
+
+  web:
+    image: overleaf-web
+    env_file:
+      - prod.env
+    environment:
+      - APP_NAME=Overleaf CE
+      - ENABLED_LINKED_FILE_TYPES=project_file,project_output_file
+      - EMAIL_CONFIRMATION_DISABLED=true
+      - NODE_ENV=production
+      - OVERLEAF_ALLOW_PUBLIC_ACCESS=true
+    command: ["node", "app.js"]
+    volumes:
+      - sharelatex-data:/var/lib/overleaf
+      - web-data:/overleaf/services/web/data
+      - ${PWD}/git:/overleaf/services/web/data/git
+      - ${PWD}/git/keys:/overleaf/services/web/data/git/keys
+    depends_on:
+      - mongo
+      - redis
+      - chat
+      - clsi
+      - contacts
+      - docstore
+      - document-updater
+      - filestore
+      - history-v1
+      - notifications
+      - project-history
+      - real-time
+    ports:
+      - "127.0.0.1:8080:3030"
+
+  # webpack:
+  #   image: overleaf-webpack
+  #   command: ["npx", "webpack", "serve", "--config", "webpack.config.prod"]
+  #   ports:
+  #     - "127.0.0.1:80:3808"
+  #   volumes:
+  #     - ./webpack.config.prod.js:/overleaf/services/web/webpack.config.prod.js  
+      
+  # webpack:
+  #   image: overleaf-webpack
+  #   command: ["npx", "webpack", "serve", "--config", "webpack.config.dev-env.js"]
+  #   ports:
+  #     - "127.0.0.1:80:3808"
+  #   volumes:
+  #     - ./webpack.config.dev-env.js:/overleaf/services/web/webpack.config.dev-env.js
+
+  front:
+    image: overleaf-frontend
+    container_name: front
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80:80
+    depends_on:
+      - web

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-pvc-history-v1-buckets
+spec:
+  accessModes:
+    - {{ .Values.persistence.buckets.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.buckets.size }}
+  storageClassName: standard

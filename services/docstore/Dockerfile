@@ -17,7 +17,7 @@ COPY services/docstore/package.json /overleaf/services/docstore/
 COPY libraries/ /overleaf/libraries/
 COPY patches/ /overleaf/patches/
 
-RUN cd /overleaf && npm ci --quiet
+RUN cd /overleaf && npm i --quiet
 
 COPY services/docstore/ /overleaf/services/docstore/
 

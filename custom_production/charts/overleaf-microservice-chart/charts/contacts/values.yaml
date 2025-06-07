@@ -1,0 +1,18 @@
+replicaCount: 1
+
+image:
+  repository: overleaf-contacts
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3036
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-mongo-service
+  labels:
+    app: {{ .Release.Name }}-mongo
+spec:
+  type: {{ .Values.service.type }}
+  clusterIP: None
+  ports:
+    - port: {{ .Values.service.port }}
+
+  selector:
+    app: {{ .Release.Name }}-mongo
+  type: ClusterIP
+---
+# Becuase history-v1 seems to have hardcoded mongo host
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  labels:
+    app: {{ .Release.Name }}-mongo
+spec:
+  type: {{ .Values.service.type }}
+  clusterIP: None
+  ports:
+    - port: {{ .Values.service.port }}
+
+  selector:
+    app: {{ .Release.Name }}-mongo
+  type: ClusterIP

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-web
+  labels:
+    app: web
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      initContainers:
+        - name: init-chown
+          image: alpine:latest  # Une image légère qui contient la commande `chown`
+          command: ["sh", "-c", "chown -R 1000:1000 /var/lib/overleaf && chown -R 1000:1000 /overleaf/services/web/data"]
+          volumeMounts:
+            - name: sharelatex-data
+              mountPath: /var/lib/overleaf
+            - name: web-data
+              mountPath: /overleaf/services/web/data
+      containers:
+        - name: web
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-global-env
+          env:
+            - name: APP_NAME
+              value: "{{ .Values.env.APP_NAME }}"
+            - name: ENABLED_LINKED_FILE_TYPES
+              value: "{{ .Values.env.ENABLED_LINKED_FILE_TYPES }}"
+            - name: EMAIL_CONFIRMATION_DISABLED
+              value: "{{ .Values.env.EMAIL_CONFIRMATION_DISABLED }}"
+            - name: NODE_ENV
+              value: "{{ .Values.env.NODE_ENV }}"
+            - name: OVERLEAF_ALLOW_PUBLIC_ACCESS
+              value: "{{ .Values.env.OVERLEAF_ALLOW_PUBLIC_ACCESS }}"
+          volumeMounts:
+            - name: sharelatex-data
+              mountPath: /var/lib/overleaf
+            - name: web-data
+              mountPath: /overleaf/services/web/data
+          # command:
+          #   [
+          #     "/bin/bash",
+          #     "-c",
+          #     "while true; do echo $(date) >> /data/output.txt; cat /data/test.txt; sleep 10; done"
+          #   ]
+      volumes:
+        - name: sharelatex-data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc-sharelatex-data
+        - name: web-data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc-web-data

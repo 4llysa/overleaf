@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-document-updater
+  labels:
+    app: {{ .Release.Name }}-document-updater
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-document-updater
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-document-updater
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-document-updater
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-global-env
