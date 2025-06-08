@@ -1,6 +1,7 @@
 volumes:
   clsi-cache:
   clsi-output:
+  compiles-data:
   filestore-public-files:
   filestore-template-files:
   filestore-uploads:
@@ -127,8 +128,7 @@ services:
     volumes:
       - sharelatex-data:/var/lib/overleaf
       - web-data:/overleaf/services/web/data
-      - ${PWD}/git:/overleaf/services/web/data/git
-      - ${PWD}/git/keys:/overleaf/services/web/data/git/keys
+      - ${PWD}/compiles:/overleaf/services/web/data/compiles
     depends_on:
       - mongo
       - redis

@@ -17,6 +17,7 @@ RUN mkdir -p /overleaf/services/web/data/dumpFolder \
     &&  mkdir -p /overleaf/services/web/data/uploads \
     &&  mkdir -p /overleaf/services/web/data/zippedProjects \
     &&  mkdir -p /overleaf/services/web/data/projectHistories \
+    &&  mkdir -p /overleaf/services/web/data/git/keys \
     &&  chmod -R 0755 /overleaf/services/web/data \
     &&  chown -R node:node /overleaf/services/web/data
 
