@@ -24,6 +24,7 @@ const EditorNavigationToolbarRoot = React.memo(
   }) {
     const {
       name: projectName,
+      git: isGit,
       features: { trackChangesVisible },
     } = useProjectContext()
 
@@ -127,6 +128,7 @@ const EditorNavigationToolbarRoot = React.memo(
         hasRenamePermissions={permissionsLevel === 'owner'}
         openShareModal={openShareModal}
         trackChangesVisible={canViewChatAndTrackChanges && trackChangesVisible}
+        isGit={isGit}
       />
     )
   }

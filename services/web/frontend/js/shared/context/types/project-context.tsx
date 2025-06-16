@@ -12,6 +12,7 @@ export type ProjectContextValue = {
   _id: string
   name: string
   rootDocId?: string
+  isGit: boolean
   compiler: string
   members: ProjectContextMember[]
   invites: ProjectContextMember[]

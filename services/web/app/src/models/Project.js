@@ -40,6 +40,7 @@ const ProjectSchema = new Schema(
     collaberator_refs: [{ type: ObjectId, ref: 'User' }],
     readOnly_refs: [{ type: ObjectId, ref: 'User' }],
     rootDoc_id: { type: ObjectId },
+    isGit: {type: Boolean, default: false },
     rootFolder: [FolderSchema],
     version: { type: Number }, // incremented for every change in the project structure (folders and filenames)
     publicAccesLevel: { type: String, default: 'private' },

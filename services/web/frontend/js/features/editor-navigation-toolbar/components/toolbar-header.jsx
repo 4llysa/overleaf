@@ -40,6 +40,7 @@ const ToolbarHeader = React.memo(function ToolbarHeader({
   hasRenamePermissions,
   openShareModal,
   trackChangesVisible,
+  isGit
 }) {
   const { t } = useTranslation()
   const shouldDisplayPublishButton = hasPublishPermissions && PublishButton
@@ -91,7 +92,11 @@ const ToolbarHeader = React.memo(function ToolbarHeader({
 
             <LayoutDropdownButton />
             
+            {isGit ? (
+              <GitToggleButton/>
+            ) : (
             <GitToggleButton/>
+            )}
 
             {chatVisible && (
               <ChatToggleButton

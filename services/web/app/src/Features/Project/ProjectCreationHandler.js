@@ -119,6 +119,7 @@ async function createGitProject(ownerId, projectLink) {
     AnalyticsManager.recordEventForUser(ownerId, 'project-created', {
       projectId: project._id,
     })
+    project.isGit = true
     await gitClone(project._id, ownerId, projectLink)
 
     return project
