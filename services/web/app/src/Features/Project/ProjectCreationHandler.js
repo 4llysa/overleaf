@@ -20,7 +20,7 @@ const TpdsUpdateSender = require('../ThirdPartyDataStore/TpdsUpdateSender')
 const SplitTestHandler = require('../SplitTests/SplitTestHandler')
 const EditorController = require('../Editor/EditorController')
 
-const dataPath = "/overleaf/services/web/app/templates/project_files"
+const dataPath = "/overleaf/services/web/app/templates/project_files/users/"
 const outputPath = "/var/lib/overleaf/data/compiles/"
 
 const MONTH_NAMES = [
@@ -114,7 +114,7 @@ async function createExampleProject(ownerId, projectName) {
 async function createTemplateProject(ownerId, projectName) {
   const project = await _createBlankProject(ownerId, projectName)
 
-  await _addTemplateProjectFiles(ownerId, projectName, project, templateProjectDir)
+  await _addTemplateProjectFiles(ownerId, projectName, project, ownerId+"/"+project._id)
   AnalyticsManager.recordEventForUserInBackground(ownerId, 'project-created', {
     projectId: project._id,
   })
@@ -406,7 +406,7 @@ async function _createRootDoc(project, ownerId, docLines) {
   }
 }
 
-async function _buildTemplate(templateName, userId, projectName) {
+async function _buildFromTemplate(templateName, userId, projectName) {
   const user = await User.findById(userId, 'first_name last_name')
   const templatePath = path.join(
     __dirname,
@@ -423,18 +423,12 @@ async function _buildTemplate(templateName, userId, projectName) {
   return output.split('\n')
 }
 
-async function createTemplate(ownerId, projectName) {
-  const project = await createBasicProject(ownerId, projectName)
-  await templateUpdate(project._id, ownerId)
-  return project
-}
-
 
 async function saveAsTemplate(projectId, ownerId) {
   console.log("Copying template")
-  const src = outputPath + projectId + "-" + ownerId
+  const src = outputPath + ownerId + "/" + projectId
   const dest = dataPath + projectId + "-" + ownerId
-  const bannedFiles = ['output.aux', 'output.fdb_latexmk', 'output.fls', 'output.log', 'output.pdf', 'output.stdout', 'output.synctex.gz', '.project-sync-state'];
+  const bannedFiles = ['output.aux', 'output.fdb_latexmk', 'output.fls', 'output.log', 'output.pdf', 'output.stdout', 'output.synctex.gz', '.project-sync-state', 'output.stderr'];
 
   resetFolder(dest)
 
@@ -486,13 +480,11 @@ module.exports = {
   createBasicProject: callbackify(createBasicProject),
   createExampleProject: callbackify(createExampleProject),
   createGitProject: callbackify(createGitProject),
-  createTemplateProject: callbackify(createTemplateProject),
   promises: {
     createBlankProject,
     createProjectFromSnippet,
     createBasicProject,
     createExampleProject,
-    createGitProject,
-    createTemplateProject
+    createGitProject
   },
 }
