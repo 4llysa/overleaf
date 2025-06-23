@@ -167,21 +167,17 @@ function GitToggleButton() {
         })
       );
 
-      // Refresh the file lists and current branch after switching branch
       const notStaged = await getJSON(`/git-notstaged?projectId=${projectId}&userId=${userId}`);
       setNotStagedFiles(notStaged);
 
       const staged = await getJSON(`/git-staged?projectId=${projectId}&userId=${userId}`);
       setStagedFiles(staged);
 
-      // Optionally, refetch branches and current branch to stay in sync
       const branchesData = await getJSON(`/git-branches?projectId=${projectId}&userId=${userId}`);
       setBranches(branchesData);
 
-      // const currentBranch = await getJSON(`/git-currentbranch?projectId=${projectId}&userId=${userId}`);
-      // setSelectedBranch(currentBranch);
     } catch (error) {
-      console.error(error);
+      alert.error(error.data.errorReason);
     }
   }
 
