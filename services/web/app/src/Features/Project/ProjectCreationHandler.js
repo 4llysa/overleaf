@@ -425,8 +425,8 @@ async function saveAsTemplate(req, res) {
   projectId = req.body.projectId
   userId = req.body.userId
   console.log("Copying template")
-  const src = originPath + projectId + "-" + ownerId
-  const dest = destPath +  ownerId + "/" + projectId 
+  const src = originPath + projectId + "-" + userId
+  const dest = destPath +  userId + "/" + projectId 
   const bannedFiles = ['output.aux', 'output.fdb_latexmk', 'output.fls', 'output.log', 'output.pdf', 'output.stdout', 'output.synctex.gz', '.project-sync-state', 'output.stderr'];
 
   GitController.resetFolder(dest)
