@@ -210,6 +210,18 @@ function NewProjectButton({
               }
             />
           )}
+          
+          <MenuItem
+            onClick={e =>
+              handleModalMenuClick(e, {
+                modalVariant: 'import_from_template',
+                dropdownMenuEvent: 'import-from-template',
+              })
+            }
+          >
+            {'Import from Template'}
+          </MenuItem>
+          
           {portalTemplates.length > 0 ? (
             <>
               <MenuItem divider />

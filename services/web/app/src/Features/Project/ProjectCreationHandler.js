@@ -19,9 +19,10 @@ const AnalyticsManager = require('../Analytics/AnalyticsManager')
 const TpdsUpdateSender = require('../ThirdPartyDataStore/TpdsUpdateSender')
 const SplitTestHandler = require('../SplitTests/SplitTestHandler')
 const EditorController = require('../Editor/EditorController')
+const GitController = require('../Git/GitController')
 
-const dataPath = "/overleaf/services/web/app/templates/project_files/users/"
-const outputPath = "/var/lib/overleaf/data/compiles/"
+const destPath = "/var/lib/overleaf/data/template_files/users/"
+const originPath = "/var/lib/overleaf/data/compiles/"
 
 const MONTH_NAMES = [
   'January',
@@ -101,7 +102,7 @@ async function createBasicProject(ownerId, projectName) {
 
 async function createExampleProject(ownerId, projectName) {
   const project = await _createBlankProject(ownerId, projectName)
-
+  console.log("on s'occupe du projet ", projectName)
   await _addExampleProjectFiles(ownerId, projectName, project)
   AnalyticsManager.recordEventForUserInBackground(ownerId, 'project-created', {
     projectId: project._id,
@@ -306,8 +307,8 @@ function getRootId(projectId) {
   return decrementedHexString
 }
 
-async function _addTemplateProjectFiles(ownerId, projectName, project, filespath) {
-  temp = path.join(filespath, 'main.tex')
+async function _addTemplateProjectFiles(ownerId, projectName, project, dest) {
+  temp = path.join(dest, 'main.tex')
   const main = temp
   const mainDocLines = await _buildTemplate(
     `${main}`,
@@ -315,11 +316,7 @@ async function _addTemplateProjectFiles(ownerId, projectName, project, filespath
     projectName
   )
   await _createRootDoc(project, ownerId, mainDocLines)
-  const templatePath = path.join(
-    __dirname,
-    `/../../../templates/project_files`,
-    templateProjectDir
-  )
+  const templatePath = path.join(destPath,ownerId,project._id)
   console.log("on a filespath : ", filespath)
   console.log("et templatePath : ", templatePath)
   await recAddFiles(templatePath, project._id, ownerId, getRootId(project._id), projectName, templateProjectDir)
@@ -406,7 +403,7 @@ async function _createRootDoc(project, ownerId, docLines) {
   }
 }
 
-async function _buildFromTemplate(templateName, userId, projectName) {
+async function _buildTemplate(templateName, userId, projectName) {
   const user = await User.findById(userId, 'first_name last_name')
   const templatePath = path.join(
     __dirname,
@@ -424,13 +421,15 @@ async function _buildFromTemplate(templateName, userId, projectName) {
 }
 
 
-async function saveAsTemplate(projectId, ownerId) {
+async function saveAsTemplate(req, res) {
+  projectId = req.body.projectId
+  userId = req.body.userId
   console.log("Copying template")
-  const src = outputPath + ownerId + "/" + projectId
-  const dest = dataPath + projectId + "-" + ownerId
+  const src = originPath + projectId + "-" + ownerId
+  const dest = destPath +  ownerId + "/" + projectId 
   const bannedFiles = ['output.aux', 'output.fdb_latexmk', 'output.fls', 'output.log', 'output.pdf', 'output.stdout', 'output.synctex.gz', '.project-sync-state', 'output.stderr'];
 
-  resetFolder(dest)
+  GitController.resetFolder(dest)
 
   fse.copy(src, dest, err => {
 
@@ -470,6 +469,7 @@ async function saveAsTemplate(projectId, ownerId) {
       console.log("Destination: " + dest)
     })
   })
+  res.sendStatus(200)
 }
 
 
@@ -480,6 +480,7 @@ module.exports = {
   createBasicProject: callbackify(createBasicProject),
   createExampleProject: callbackify(createExampleProject),
   createGitProject: callbackify(createGitProject),
+  saveAsTemplate: callbackify(saveAsTemplate),
   promises: {
     createBlankProject,
     createProjectFromSnippet,

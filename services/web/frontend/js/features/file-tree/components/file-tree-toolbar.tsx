@@ -45,7 +45,7 @@ function FileTreeToolbarLeft() {
   const { isLoading, isError, error, runAsync } = useAsync<NewProjectData>()
   const { t } = useTranslation()
   const { id: userId } = useUserContext()
-  const { _id: projectId } = useProjectContext()
+  const { _id: projectId, name: projectName } = useProjectContext()
 
   const {
     canCreate,
@@ -111,6 +111,25 @@ function FileTreeToolbarLeft() {
         );
       }}>
         <Icon type="repeat" fw accessibilityLabel={t('pull')} />
+      </Button>
+    </Tooltip>
+    <Tooltip
+        id="save_as_template"
+        description='Save as Template'
+        overlayProps={{ placement: 'bottom' }}
+      >
+      <Button onClick={() => {
+        runAsync(
+            postJSON('/template', {
+              body:{
+                projectId: projectId,
+                userId: userId//,
+                //projectName: projectName
+              }
+            })
+        );
+      }}>
+        <Icon type="save" fw accessibilityLabel={'template'} />
       </Button>
     </Tooltip>
     </div>

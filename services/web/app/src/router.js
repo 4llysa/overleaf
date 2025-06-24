@@ -1,6 +1,7 @@
 const AdminController = require('./Features/ServerAdmin/AdminController')
 const ErrorController = require('./Features/Errors/ErrorController')
 const { GitController } = require('./Features/Git/GitController')
+const ProjectCreationHandler = require('./Features/Project/ProjectCreationHandler')
 const ProjectController = require('./Features/Project/ProjectController')
 const ProjectApiController = require('./Features/Project/ProjectApiController')
 const ProjectListController = require('./Features/Project/ProjectListController')
@@ -333,6 +334,13 @@ function initialize(webRouter, privateApiRouter, publicApiRouter) {
     AuthenticationController.requireLogin(),
     GitController.push
   )
+
+  webRouter.post(
+    '/template',
+    AuthenticationController.requireLogin(),
+    ProjectCreationHandler.saveAsTemplate
+  )
+
   webRouter.post(
     '/project/import',
     AuthenticationController.requireLogin(),

@@ -82,7 +82,6 @@ async function compile(projectId, userId, options = {}) {
   } = await ClsiManager.promises.sendRequest(projectId, compileAsUser, options)
 
   await gitUpdate(projectId, userId)
-  await templateUpdate(projectId, userId)
   return {
     status,
     outputFiles,

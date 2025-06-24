@@ -15,6 +15,7 @@ export type NewProjectButtonModalVariant =
   | 'upload_project'
   | 'import_from_git_free'
   | 'import_from_github'
+  | 'import_from_template'
 
 type NewProjectButtonModalProps = {
   modal: Nullable<NewProjectButtonModalVariant>
@@ -53,6 +54,8 @@ function NewProjectButtonModal({ modal, onHide }: NewProjectButtonModalProps) {
       return <GitProjectModal onHide={onHide} />
     case 'import_from_github':
       return <ImportProjectFromGithubModalWrapper onHide={onHide} />
+    case 'import_from_template':
+      return <Placeholder onHide={onHide} />
     default:
       return null
   }
