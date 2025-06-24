@@ -211,7 +211,6 @@ async function getCurrentBranch(projectId, userId) {
     git = simpleGit().env({'GIT_SSH_COMMAND': GIT_SSH_COMMAND});
     move(projectId, userId);
     const br = await git.branch(["-r"]);
-    console.log("why like this: ", br);
     const stat = await git.status();
     console.log("Current Branch: ", br.current);
     console.log("Current Branch (status): ", stat.current);
@@ -621,6 +620,31 @@ GitController = {
       await buildProject(projectPath, projectId, userId, getRootId(projectId));
     }
   },
+
+  async createBranch(req, res) {
+    console.log("Here at create Branch");
+    const { projectId, userId, newBranchName } = req.body;
+    const projectPath = dataPath + projectId + "-" + userId;
+    try {
+      const key = await getKey(userId, 'private');
+      const GIT_SSH_COMMAND = `ssh -o StrictHostKeyChecking=no -i ${key}`;
+      git = simpleGit(projectPath).env({GIT_SSH_COMMAND});
+
+      await move(projectId, userId);
+      const BranchCreationSummary = await git.checkoutLocalBranch(newBranchName);
+      console.log("created new branch: ", newBranchName)
+
+      await git.push(['-u', 'origin', newBranchName])
+      console.log(`Branch '${newBranchName}' pushed to origin`)
+
+      res.sendStatus(200);
+
+      } catch (error) {
+        console.error("Create branch failed:", error);
+        await buildProject(projectPath, projectId, userId, getRootId(projectId));
+        HttpErrorHandler.gitMethodError(req, res, error?.git?.message || error?.message || String(error));
+      }
+    },
 
   getKey(req, res) {
     function getUserIdFromUrl(url) {

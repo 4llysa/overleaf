@@ -329,6 +329,12 @@ function initialize(webRouter, privateApiRouter, publicApiRouter) {
   )
 
   webRouter.post(
+    '/git-create-branch',
+    AuthenticationController.requireLogin(),
+    GitController.createBranch
+  )
+
+  webRouter.post(
     '/git-pull',
     AuthenticationController.requireLogin(),
     GitController.pull

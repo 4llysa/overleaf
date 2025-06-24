@@ -13,7 +13,7 @@ import {
   postJSON,
 } from '../../../infrastructure/fetch-json'
 
-function Modal({ isOpen, onClose, onCommit, onPush, notStagedFiles, stagedFiles, branches, selectedBranch, onSelectBranch}) {
+function Modal({ isOpen, onClose, onCommit, onPush, notStagedFiles, stagedFiles, branches, selectedBranch, onSelectBranch, onCreateBranch}) {
   if (!isOpen) return null
 
   return (
@@ -21,6 +21,22 @@ function Modal({ isOpen, onClose, onCommit, onPush, notStagedFiles, stagedFiles,
         <button onClick={onClose} className="modal-close-button">X</button>
         <div className="modal-content">
           <h2 style={{ fontFamily: 'sans-serif', fontWeight: 500 }}>Git Menu</h2>
+
+          <div style={{ marginBottom: '15px' }}>
+            <label htmlFor="new-branch" style={{ color: 'black' }}>Create New Branch</label>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '5px' }}>
+              <input
+                id="new-branch"
+                type="text"
+                placeholder="new-branch-name"
+                style={{ flex: 1, padding: '5px', color: 'dimgray' }}
+              />
+              <button onClick={onCreateBranch} style={{ padding: '5px 10px', color: 'black' }}>
+                Checkout
+              </button>
+            </div>
+          </div>
+
           <div style={{ marginBottom: '15px' }}>
             <label htmlFor="branch-select" style={{ color: 'black' }}>Select Branch</label>
             <select
@@ -180,6 +196,43 @@ function GitToggleButton() {
       alert.error(error.data.errorReason);
     }
   }
+  const handleCreateBranch = async () => {
+    const input = document.getElementById('new-branch');
+    const branchName = input?.value.trim();
+
+    if (!branchName) {
+      alert('Branch name cannot be empty');
+      return;
+    }
+
+    try {
+      await postJSON('/git-create-branch', {
+        body: {
+          projectId,
+          userId,
+          newBranchName: branchName,
+        },
+      });
+
+      alert('Branch created');
+      input.value = '';
+
+      const notStaged = await getJSON(`/git-notstaged?projectId=${projectId}&userId=${userId}`);
+      setNotStagedFiles(notStaged);
+
+      const staged = await getJSON(`/git-staged?projectId=${projectId}&userId=${userId}`);
+      setStagedFiles(staged);
+
+      const branchesData = await getJSON(`/git-branches?projectId=${projectId}&userId=${userId}`);
+      setBranches(branchesData);
+
+      const currentBranch = await getJSON(`/git-currentbranch?projectId=${projectId}&userId=${userId}`);
+      setSelectedBranch(currentBranch);
+
+    } catch (err) {
+      alert('Failed to create branch: ' + (err?.data?.errorReason || err.message));
+    }
+  };
 
   return (
     <div className="toolbar-item">
@@ -197,6 +250,7 @@ function GitToggleButton() {
         branches={branches}
         selectedBranch={selectedBranch}
         onSelectBranch={handleSelectBranch}
+        onCreateBranch ={handleCreateBranch}
       />
     </div>
   )
