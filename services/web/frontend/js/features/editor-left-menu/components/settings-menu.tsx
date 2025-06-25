@@ -8,6 +8,7 @@ import SettingsDocument from './settings/settings-document'
 import SettingsEditorTheme from './settings/settings-editor-theme'
 import SettingsFontFamily from './settings/settings-font-family'
 import SettingsFontSize from './settings/settings-font-size'
+import SettingsGit from './settings/settings-git'
 import SettingsImageName from './settings/settings-image-name'
 import SettingsKeybindings from './settings/settings-keybindings'
 import SettingsLineHeight from './settings/settings-line-height'
@@ -18,6 +19,7 @@ import SettingsSyntaxValidation from './settings/settings-syntax-validation'
 import SettingsMathPreview from './settings/settings-math-preview'
 import importOverleafModules from '../../../../macros/import-overleaf-module.macro'
 import { ElementType } from 'react'
+import { useFeatureFlag } from '@/shared/context/split-test-context'
 import OLForm from '@/features/ui/components/ol/ol-form'
 
 const moduleSettings: Array<{
@@ -40,6 +42,7 @@ export default function SettingsMenu() {
         <SettingsCompiler />
         <SettingsImageName />
         <SettingsDocument />
+        <SettingsGit />
         <SettingsSpellCheckLanguage />
         <SettingsDictionary />
         {moduleSettings.map(({ import: { default: Component }, path }) => (

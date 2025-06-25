@@ -1,5 +1,6 @@
 import AdminController from './Features/ServerAdmin/AdminController.js'
 import ErrorController from './Features/Errors/ErrorController.js'
+import { GitController } from './Features/Git/GitController.js'
 import Features from './infrastructure/Features.js'
 import ProjectController from './Features/Project/ProjectController.js'
 import ProjectApiController from './Features/Project/ProjectApiController.mjs'
@@ -27,6 +28,9 @@ import DocumentController from './Features/Documents/DocumentController.mjs'
 import CompileManager from './Features/Compile/CompileManager.js'
 import CompileController from './Features/Compile/CompileController.js'
 import ClsiCookieManagerFactory from './Features/Compile/ClsiCookieManager.js'
+// const ClsiCookieManager = ClsiCookieManagerFactory(
+//   Settings.apis.clsi != null ? Settings.apis.clsi.backendGroupName : undefined
+// )
 import HealthCheckController from './Features/HealthCheck/HealthCheckController.mjs'
 import ProjectDownloadsController from './Features/Downloads/ProjectDownloadsController.mjs'
 import FileStoreController from './Features/FileStore/FileStoreController.mjs'
@@ -297,6 +301,59 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
 
   // .getMessages will generate an empty response for anonymous users.
   webRouter.get('/system/messages', SystemMessageController.getMessages)
+
+  webRouter.get(
+    '/ssh-key',
+    AuthenticationController.requireLogin(),
+    GitController.getKey
+  )
+
+  webRouter.post(
+    '/git-add',
+    AuthenticationController.requireLogin(),
+    GitController.add
+  )
+
+  webRouter.get(
+    '/git-staged',
+    AuthenticationController.requireLogin(),
+    GitController.stagedFiles
+  )
+
+  webRouter.get(
+    '/git-notstaged',
+    AuthenticationController.requireLogin(),
+    GitController.notStagedFiles
+  )
+
+  webRouter.post(
+    '/git-pull',
+    AuthenticationController.requireLogin(),
+    GitController.pull
+  )
+
+  webRouter.post(
+    '/git-commit',
+    AuthenticationController.requireLogin(),
+    GitController.commit
+  )
+
+  webRouter.post(
+    '/git-push',
+    AuthenticationController.requireLogin(),
+    GitController.push
+  )
+  webRouter.post(
+    '/project/import',
+    AuthenticationController.requireLogin(),
+    RateLimiterMiddleware.rateLimit(rateLimiters.createProject),
+    ProjectController.importProject
+  )
+  webRouter.post(
+    '/copy-directory',
+    AuthenticationController.requireLogin(),
+    ProjectController.copyDirectory
+  )
 
   webRouter.get(
     '/user/settings',

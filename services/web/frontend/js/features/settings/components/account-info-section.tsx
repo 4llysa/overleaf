@@ -7,6 +7,7 @@ import {
 import getMeta from '../../../utils/meta'
 import useAsync from '../../../shared/hooks/use-async'
 import { useUserContext } from '../../../shared/context/user-context'
+import { useFileTreeData } from '@/shared/context/file-tree-data-context'
 import OLButton from '@/features/ui/components/ol/ol-button'
 import OLNotification from '@/features/ui/components/ol/ol-notification'
 import OLFormGroup from '@/features/ui/components/ol/ol-form-group'
@@ -14,7 +15,27 @@ import OLFormLabel from '@/features/ui/components/ol/ol-form-label'
 import OLFormControl from '@/features/ui/components/ol/ol-form-control'
 import OLFormText from '@/features/ui/components/ol/ol-form-text'
 
+async function getKey(userId) {
+    console.log(userId)
+    const url = new URL('/ssh-key', window.origin)
+    url.searchParams.append('userId', userId)
+
+    try {
+        const response = await fetch(url)
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const privateKey = await response.text()
+        navigator.clipboard.writeText(privateKey)
+    } catch (error) {
+        console.error('Error:', error)
+    }
+}
+
 function AccountInfoSection() {
+  const { id: userId } = useUserContext()
   const { t } = useTranslation()
   const { hasAffiliationsFeature } = getMeta('ol-ExposedSettings')
   const isExternalAuthenticationSystemUsed = getMeta(
@@ -134,6 +155,16 @@ function AccountInfoSection() {
             </OLButton>
           </OLFormGroup>
         ) : null}
+        <OLFormGroup>
+          <OLButton
+              type="button"
+              variant="secondary"
+              onClick={() => getKey(userId)}
+          >
+            Copy SSH key
+          </OLButton>
+        </OLFormGroup>
+
       </form>
     </>
   )

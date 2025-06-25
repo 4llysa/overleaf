@@ -213,8 +213,8 @@ function NewProjectButton({
               <ImportProjectFromGithubMenu
                 onClick={e =>
                   handleModalMenuClick(e, {
-                    modalVariant: 'import_from_github',
-                    dropdownMenuEvent: 'import-from-github',
+                    modalVariant: 'import_from_git_free',
+                    dropdownMenuEvent: 'import-from-git-free',
                   })
                 }
               />

@@ -102,7 +102,7 @@ const AuthenticationController = {
     // so we can send back our custom `{message: {text: "", type: ""}}` responses on failure,
     // and send a `{redir: ""}` response on success
     passport.authenticate(
-      'local',
+      ['local'],
       { keepSessionInfo: true },
       async function (err, user, info) {
         if (err) {

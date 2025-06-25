@@ -24,6 +24,7 @@ import { isBlockedFilename, isCleanFilename } from '../util/safe-path'
 import { useProjectContext } from '../../../shared/context/project-context'
 import { useFileTreeData } from '../../../shared/context/file-tree-data-context'
 import { useFileTreeSelectable } from './file-tree-selectable'
+import { getFullPath } from './get-full-path'
 
 import {
   InvalidFilenameError,
@@ -47,6 +48,9 @@ type DroppedFiles = {
 
 const FileTreeActionableContext = createContext<
   | {
+      fileTreeData: any
+      selectedEntityIds: any
+      projectName: any
       isDeleting: boolean
       isRenaming: boolean
       isCreatingFile: boolean
@@ -222,7 +226,7 @@ function fileTreeActionableReducer(state: State, action: Action) {
 export const FileTreeActionableProvider: FC<React.PropsWithChildren> = ({
   children,
 }) => {
-  const { _id: projectId } = useProjectContext()
+  const { _id: projectId, name: projectName } = useProjectContext()
   const { fileTreeReadOnly } = useFileTreeData()
   const { indexAllReferences } = useReferencesContext()
   const { write } = usePermissionsContext()
@@ -323,7 +327,7 @@ export const FileTreeActionableProvider: FC<React.PropsWithChildren> = ({
 
   // moves entities. Tree is updated immediately and data are sync'd after.
   const finishMoving = useCallback(
-    (toFolderId: string, draggedEntityIds: Set<string>) => {
+    (toFolderId, draggedEntityIds) => {
       dispatch({ type: ACTION_TYPES.MOVING })
 
       // find entities and filter out no-ops and nested files
@@ -403,7 +407,7 @@ export const FileTreeActionableProvider: FC<React.PropsWithChildren> = ({
   }, [fileTreeData, selectedEntityIds])
 
   const finishCreatingEntity = useCallback(
-    (entity: any) => {
+    entity => {
       const error = validateCreate(fileTreeData, parentFolderId, entity)
       if (error) {
         return Promise.reject(error)
@@ -415,7 +419,7 @@ export const FileTreeActionableProvider: FC<React.PropsWithChildren> = ({
   )
 
   const finishCreatingFolder = useCallback(
-    (name: any) => {
+    name => {
       dispatch({ type: ACTION_TYPES.CREATING_FOLDER })
       return finishCreatingEntity({ endpoint: 'folder', name })
         .then(() => {
@@ -428,7 +432,7 @@ export const FileTreeActionableProvider: FC<React.PropsWithChildren> = ({
     [finishCreatingEntity]
   )
 
-  const startCreatingFile = useCallback((newFileCreateMode: any) => {
+  const startCreatingFile = useCallback(newFileCreateMode => {
     dispatch({ type: ACTION_TYPES.START_CREATE_FILE, newFileCreateMode })
   }, [])
 
@@ -441,7 +445,7 @@ export const FileTreeActionableProvider: FC<React.PropsWithChildren> = ({
   }, [startCreatingFile])
 
   const finishCreatingDocOrFile = useCallback(
-    (entity: any) => {
+    entity => {
       dispatch({ type: ACTION_TYPES.CREATING_FILE })
 
       return finishCreatingEntity(entity)
@@ -456,7 +460,7 @@ export const FileTreeActionableProvider: FC<React.PropsWithChildren> = ({
   )
 
   const finishCreatingDoc = useCallback(
-    (entity: any) => {
+    entity => {
       entity.endpoint = 'doc'
       return finishCreatingDocOrFile(entity)
     },
@@ -464,7 +468,7 @@ export const FileTreeActionableProvider: FC<React.PropsWithChildren> = ({
   )
 
   const finishCreatingLinkedFile = useCallback(
-    (entity: any) => {
+    entity => {
       entity.endpoint = 'linked_file'
       return finishCreatingDocOrFile(entity)
     },
@@ -498,7 +502,7 @@ export const FileTreeActionableProvider: FC<React.PropsWithChildren> = ({
       const selectedEntity = findInTree(fileTreeData, selectedEntityId)
 
       if (selectedEntity?.type === 'fileRef') {
-        return fileUrl(projectId, selectedEntityId, selectedEntity.entity.hash)
+        return `/project/${projectId}/file/${selectedEntityId}`
       }
 
       if (selectedEntity?.type === 'doc') {
@@ -515,6 +519,9 @@ export const FileTreeActionableProvider: FC<React.PropsWithChildren> = ({
       canRename: write && selectedEntityIds.size === 1 && !isRootFolderSelected,
       canCreate: write && selectedEntityIds.size < 2,
       ...state,
+      fileTreeData,
+      selectedEntityIds,
+      projectName,
       parentFolderId,
       selectedFileName,
       isDuplicate,
@@ -577,7 +584,18 @@ export function useFileTreeActionable() {
     )
   }
 
-  return context
+  const { fileTreeData, selectedEntityIds } = context;
+
+  // Calculates the file path
+  const selectedFilePath = useMemo(() => {
+    if (selectedEntityIds.size === 1) {
+      const [selectedEntityId] = selectedEntityIds
+      return getFullPath(fileTreeData, selectedEntityId).slice(1)
+    }
+    return null;
+  }, [fileTreeData, selectedEntityIds])
+
+  return {...context, selectedFilePath}
 }
 
 function getSelectedParentFolderId(
