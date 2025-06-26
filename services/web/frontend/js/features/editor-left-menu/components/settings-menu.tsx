@@ -1,4 +1,4 @@
-import { Form } from 'react-bootstrap'
+// import { Form } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import getMeta from '../../../utils/meta'
 import SettingsAutoCloseBrackets from './settings/settings-auto-close-brackets'

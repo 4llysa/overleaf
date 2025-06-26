@@ -228,7 +228,7 @@ export const FileTreeActionableProvider: FC<React.PropsWithChildren> = ({
 }) => {
   const { _id: projectId, name: projectName } = useProjectContext()
   const { fileTreeReadOnly } = useFileTreeData()
-    const { permissionsLevel } = useEditorContext()
+    // const { permissionsLevel } = useEditorContext()
     const { indexAllReferences } = useReferencesContext()
   const { write } = usePermissionsContext()
 

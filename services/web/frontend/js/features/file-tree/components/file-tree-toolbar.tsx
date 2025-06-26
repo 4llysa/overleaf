@@ -38,24 +38,6 @@ type NewProjectData = {
   }
 }
 
-
-import useAsync from '../../../shared/hooks/use-async'
-import {
-  getUserFacingMessage,
-  postJSON,
-} from '../../../infrastructure/fetch-json'
-
-type NewProjectData = {
-  project_id: string
-  owner_ref: string
-  owner: {
-    first_name: string
-    last_name: string
-    email: string
-    id: string
-  }
-}
-
 function FileTreeToolbar() {
   const { fileTreeReadOnly } = useFileTreeData()
   const { t } = useTranslation()

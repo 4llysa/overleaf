@@ -58,12 +58,16 @@ async function getEmail(userId) {
 }
 
 async function getUserFilesDiskUsage(userFilesDir) {
+  console.log('[DEBUG] getUserFilesDiskUsage: userFilesDir =', userFilesDir)
   let userUsageMap = {} // userId -> summed bytes
   let entries
   try {
+    console.log("waiting for read entries", userFilesDir)
     entries = await readdir(userFilesDir, { withFileTypes: true })
+    console.log("entries read")
   } catch (err) {
     // handle error or return empty object
+    console.log(err)
     return {}
   }
   for (const entry of entries) {
@@ -79,7 +83,9 @@ async function getUserFilesDiskUsage(userFilesDir) {
     try {
       fileStat = await stat(fullPath)
     } catch (err) {
-      continue
+      console.log("path:" , fullPath)
+      console.log(err)
+
     }
     
     if (!userUsageMap[email]) userUsageMap[email] = 0
@@ -115,7 +121,8 @@ const AdminController = {
     }
     const targetDir = '/var/lib/overleaf/data'
     const historyDir = '/var/lib/overleaf/data/history'
-    const userFilesDir = '/var/lib/overleaf/data/user_files'
+    // const userFilesDir = '/var/lib/overleaf/data/user_files'
+    const userFilesDir = '/var/lib/overleaf/data/git'
     let directorySizeBytes = null
     let historySizeBytes = null
     let userFilesUsage = null
