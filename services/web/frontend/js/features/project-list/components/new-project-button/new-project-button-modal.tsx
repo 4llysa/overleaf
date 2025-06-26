@@ -8,11 +8,13 @@ import { Nullable } from '../../../../../../types/utils'
 import { FullSizeLoadingSpinner } from '@/shared/components/loading-spinner'
 import { useLocation } from '@/shared/hooks/use-location'
 import TemplateGetter from '../../../../../../app/src/Features/Templates/TemplateGetter'
-import {readdir} from 'fs-extra'
-/*import {
+//import {readdir} from 'fs-extra'
+import useAsync from '../../../../shared/hooks/use-async'
+import {
   postJSON
-} from '../../../../infrastructure/fetch-json'*/
+} from '../../../../infrastructure/fetch-json'
 import { useUserContext } from '../../../../shared/context/user-context'
+import { useProjectContext } from '../../../../shared/context/project-context'
 
 
 const templatePath = "/var/lib/overleaf/data/template_files/users/"
@@ -34,6 +36,7 @@ type NewProjectButtonModalProps = {
 }
 
 function NewProjectButtonModal({ modal, onHide}: NewProjectButtonModalProps) {//, templatesMap = {} }: NewProjectButtonModalProps) {
+  const { isLoading, isError, error, runAsync } = useAsync<NewProjectButtonModalProps>()
   const [importProjectFromGithubModalWrapper] = importOverleafModules(
     'importProjectFromGithubModalWrapper'
   )
@@ -43,6 +46,7 @@ function NewProjectButtonModal({ modal, onHide}: NewProjectButtonModalProps) {//
 
   const location = useLocation()
   const { id: userId } = useUserContext()
+  const { id: projectId } = useProjectContext()
   const openProject = useCallback(
     (projectId: string) => {
       location.assign(`/project/${projectId}`)
@@ -65,8 +69,8 @@ function NewProjectButtonModal({ modal, onHide}: NewProjectButtonModalProps) {//
       return <GitProjectModal onHide={onHide} />
     case 'import_from_github':
       return <ImportProjectFromGithubModalWrapper onHide={onHide} />
-    //case 'import_from_template':
-      /*runAsync(
+    /*case 'import_from_template':
+      runAsync(
             postJSON('/template', {
               body:{
                 projectId: projectId,
@@ -83,8 +87,8 @@ function NewProjectButtonModal({ modal, onHide}: NewProjectButtonModalProps) {//
           //templatesMap={TemplateGetter.getTemplate(readdir(templatePath+"/"+userId), {}, function () {})}
           openProject={openProject} 
         />
-      )*/
-     //case 'import_from_template':
+      )
+     //case 'import_from_template':*/
 
     default:
       return null

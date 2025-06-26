@@ -8,7 +8,7 @@ type ImportTemplateModalProps = {
   visible: boolean
 }
 
-export default function ImportTemplateModal({ onHide, openProject, visible }: ImportTemplateModalProps) {
+/*export default function ImportTemplateModal({ onHide, openProject, visible }: ImportTemplateModalProps) {
   const [templates, setTemplates] = useState<{ [id: string]: string }>({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -39,5 +39,5 @@ export default function ImportTemplateModal({ onHide, openProject, visible }: Im
         )}
       />
     </Modal>
-  )*/
-}
+  )
+}*/

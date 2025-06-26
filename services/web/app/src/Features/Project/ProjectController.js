@@ -47,6 +47,7 @@ const OnboardingDataCollectionManager = require('../OnboardingDataCollection/Onb
 const UserUpdater = require('../User/UserUpdater')
 const Modules = require('../../infrastructure/Modules')
 const UserGetter = require('../User/UserGetter')
+const TemplateGetter = require('../Templates/TemplateGetter')
 
 
 /**
@@ -1015,23 +1016,8 @@ const _ProjectController = {
 
   async getTemplateNames(req, res) {
     try {
-      const userId = req.body.userId//Meta('ol-user_id')
-      const userTemplatePath = templatePath + "/" + userId
-      const items = [1] //await readdir(userTemplatePath);
-      const names = {};
-      for (var projectId of items) {
-        console.log("on traite ", projectId)
-        try {
-          //projectId = normalizeQuery(projectId)
-          var project = TemplateGetter.getTemplate(projectId, function () {})//db.Templates.findOne(projectId, {}, function () {})
-          if (project) {
-            console.log("on a trouvé le nom ", project.name.toString())
-            names[projectId] = project.name.toString();
-          }
-        } catch (err) {
-          console.error('Failed to fetch project name', projectId, err);
-        }
-      }
+      const userId = req.body.userId
+      const names = TemplateGetter.getTemplateList(userId, function () {})
       return res.json(names);
     } catch (err) {
       console.error('Failed to list templates', err);

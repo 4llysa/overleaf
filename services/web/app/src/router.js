@@ -348,11 +348,11 @@ function initialize(webRouter, privateApiRouter, publicApiRouter) {
     ProjectController.importProject
   )
 
-  webRouter.post(
+  /*webRouter.post(
     '/template-list',
     AuthenticationController.requireLogin(),
     ProjectController.getTemplateNames
-  )
+  )*/
 
   webRouter.post(
     '/copy-directory',
