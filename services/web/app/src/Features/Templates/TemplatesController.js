@@ -16,7 +16,7 @@ const TemplatesController = {
 //      )
 //      return res.sendStatus(400)
 //    }
-   }
+  
     const data = {
       templateVersionId,
       templateId,
