@@ -1,7 +1,7 @@
 //GitController.js
 const path = require('path')
 const fs = require('fs-extra')
-const dataPath = "/var/lib/overleaf/data/git/"
+const dataPath = "/var/lib/overleaf/data/git/projects/"
 const outputPath = "/var/lib/overleaf/data/compiles/"
 const simpleGit = require('simple-git')
 const EditorController = require('../Editor/EditorController')
@@ -391,13 +391,13 @@ async function makeKey(keyPath) {
 }
 
 async function getKey(userId, type) {
-  const keyPath = dataPath + "keys/" + userId
+  const keyPath = dataPath + "../keys/" + userId
   console.log(keyPath)
   if (!fs.existsSync(keyPath + '/private')) {
     await makeKey(keyPath)
   }
   if (type === 'private') {
-    const privateKey = "/" + dataPath + "keys/" + userId + "/private"
+    const privateKey = "/" + dataPath + "../keys/" + userId + "/private"
     console.log(privateKey)
     return privateKey
 

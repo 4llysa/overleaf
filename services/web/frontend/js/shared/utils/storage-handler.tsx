@@ -6,7 +6,7 @@ import {
 
 function copyDirectory(projectId: string, userId: string) {
   const src = '/var/lib/overleaf/data/output/' + projectId + '-' + userId;
-  const dest = '/var/lib/overleaf/data/git/' + projectId + '-' + userId;
+  const dest = '/var/lib/overleaf/data/git/projects/' + projectId + '-' + userId;
 
   console.log(dest);
   runAsync(

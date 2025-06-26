@@ -168,6 +168,8 @@ const settings = {
     projectHistories: Path.join(TMP_DIR, 'projectHistories'),
     // Where to write the project to disk before running LaTeX on it
     compilesDir: Path.join(DATA_DIR, 'compiles'),
+    // Where to write the git related files for simple-git
+    gitDir: Path.join(DATA_DIR, 'git/projects'),
     // Where to cache downloaded URLs for the CLSI
     clsiCacheDir: Path.join(DATA_DIR, 'cache'),
     // Where to write the output files to disk after running LaTeX
