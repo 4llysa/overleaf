@@ -347,6 +347,13 @@ function initialize(webRouter, privateApiRouter, publicApiRouter) {
     RateLimiterMiddleware.rateLimit(rateLimiters.createProject),
     ProjectController.importProject
   )
+
+  webRouter.post(
+    '/template-list',
+    AuthenticationController.requireLogin(),
+    ProjectController.getTemplateNames
+  )
+
   webRouter.post(
     '/copy-directory',
     AuthenticationController.requireLogin(),

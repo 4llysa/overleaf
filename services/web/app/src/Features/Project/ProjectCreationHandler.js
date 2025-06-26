@@ -20,6 +20,7 @@ const TpdsUpdateSender = require('../ThirdPartyDataStore/TpdsUpdateSender')
 const SplitTestHandler = require('../SplitTests/SplitTestHandler')
 const EditorController = require('../Editor/EditorController')
 const GitController = require('../Git/GitController')
+const TemplateCreator = require('../Templates/TemplateCreator')
 
 const destPath = "/var/lib/overleaf/data/template_files/users/"
 const originPath = "/var/lib/overleaf/data/compiles/"
@@ -428,7 +429,15 @@ async function saveAsTemplate(req, res) {
   const src = originPath + projectId + "-" + userId
   const dest = destPath +  userId + "/" + projectId 
   const bannedFiles = ['output.aux', 'output.fdb_latexmk', 'output.fls', 'output.log', 'output.pdf', 'output.stdout', 'output.synctex.gz', '.project-sync-state', 'output.stderr'];
-
+  /*await TemplateCreator.promises.createNewTemplate(
+    {
+      id: projectId,
+      templateName: req.body.projectName,
+      owner: userId,
+      created: new Date()
+    },
+    {}
+  )*/
   GitController.resetFolder(dest)
 
   fse.copy(src, dest, err => {

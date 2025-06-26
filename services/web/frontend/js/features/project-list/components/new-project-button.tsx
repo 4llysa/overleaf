@@ -6,6 +6,7 @@ import getMeta from '../../../utils/meta'
 import NewProjectButtonModal, {
   NewProjectButtonModalVariant,
 } from './new-project-button/new-project-button-modal'
+//import TemplateListModal from './new-project-button/import-template-modal'
 import AddAffiliation, { useAddAffiliation } from './add-affiliation'
 import { Nullable } from '../../../../../types/utils'
 import { sendMB } from '../../../infrastructure/event-tracking'
@@ -103,6 +104,19 @@ function NewProjectButton({
     },
     [sendTrackingEvent]
   )
+
+  /*const TemplateListClick = useCallback(
+    (
+      e: React.MouseEvent<Record<string, unknown>>,
+      { modalVariant, dropdownMenuEvent }: ModalMenuClickOptions
+    ) => {
+      sendTrackingEvent({
+
+
+      })
+    },
+    [sendTrackingEvent]
+  )*/
 
   const handlePortalTemplateClick = useCallback(
     (
