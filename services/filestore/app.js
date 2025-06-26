@@ -111,6 +111,12 @@ if (settings.filestore.stores.template_files) {
     keyBuilder.templateFileKeyMiddleware,
     fileController.insertFile
   )
+  app.delete(
+    '/template/:template_id/v/:version/:format',
+    keyBuilder.templateFileKeyMiddleware,
+    fileController.deleteFile
+  )
+
 }
 
 app.get(
