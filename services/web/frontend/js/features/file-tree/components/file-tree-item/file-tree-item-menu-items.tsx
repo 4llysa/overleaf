@@ -2,7 +2,6 @@ import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import * as eventTracking from '../../../../infrastructure/event-tracking'
 import { useProjectContext } from '@/shared/context/project-context'
-
 import {
   DropdownDivider,
   DropdownItem,
@@ -123,6 +122,9 @@ function FileTreeItemMenuItems() {
                     filePath: selectedFilePath
                  }
               })
+           .catch( error => {
+               alert(error.data.errorReason);
+           })
             )
       }}>Add</DropdownItem>
       ) : null}

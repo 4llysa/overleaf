@@ -1,3 +1,4 @@
+import { Form } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import getMeta from '../../../utils/meta'
 import SettingsAutoCloseBrackets from './settings/settings-auto-close-brackets'
@@ -30,6 +31,7 @@ const moduleSettings: Array<{
 export default function SettingsMenu() {
   const { t } = useTranslation()
   const anonymous = getMeta('ol-anonymous')
+  const enableMathPreview = useFeatureFlag('math-preview')
 
   if (anonymous) {
     return null

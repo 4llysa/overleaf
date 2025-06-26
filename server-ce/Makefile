@@ -52,6 +52,7 @@ shellcheck:
 	@$(SHELLCHECK_FILES) | xargs -0 -r docker run --rm -v $(HERE):/mnt -w /mnt \
 		koalaman/shellcheck:stable $(SHELLCHECK_OPTS) $(SHELLCHECK_COLOR)
 	docker tag $(OVERLEAF_TAG) sharelatex/sharelatex:$(BRANCH_NAME)
+	docker tag $(OVERLEAF_TAG) sharelatex/sharelatex:$(BRANCH_NAME)
 
 shellcheck_fix:
 	@$(SHELLCHECK_FILES) | while IFS= read -r -d '' file; do \
