@@ -92,6 +92,18 @@ function Modal({
             >
               Branches
             </button>
+            <button 
+              onClick={() => setActiveTab('documentation')}
+              style={{ 
+                padding: '10px 20px', 
+                border: 'none', 
+                backgroundColor: activeTab === 'documentation' ? '#45a444' : 'transparent',
+                color: activeTab === 'documentation' ? 'white' : 'black',
+                cursor: 'pointer'
+              }}
+            >
+              Documentation
+            </button>
           </div>
 
           {/* Commit & Push Tab */}
@@ -227,7 +239,6 @@ function Modal({
                   </button>
                 </div>
               </div>
-
               <div style={{ marginBottom: '15px' }}>
                 <label htmlFor="branch-select" style={{ color: 'black' }}>Switch to Branch</label>
                 <select
@@ -280,6 +291,61 @@ function Modal({
                 </div>
               </div>
             </>
+          )}
+          {/* Documentation Tab */}
+          {activeTab === 'documentation' && (
+            <div style={{ color: 'black', fontFamily: 'sans-serif', lineHeight: '1.6' }}>
+              <h3>Guide d'utilisation de Git</h3>
+
+              <p><strong>Avant toute opération Git</strong><br />
+              Assurez-vous que le projet compile <strong>sans erreur</strong>.</p>
+
+              <h4>a. <code>git add</code> – Ajouter les fichiers</h4>
+              <ul>
+                <li>Regardez la colonne de gauche où se trouvent vos fichiers</li>
+                <li>Cliquez sur les <strong>trois points</strong> à droite du nom du fichier choisi</li>
+                <li>Sélectionnez <strong>"Add"</strong></li>
+              </ul>
+
+              <h4>b. <code>git commit</code> et <code>git push</code> – Valider et envoyer les changements</h4>
+              <ul>
+                <li>Ouvrez le <strong>menu Git</strong> situé à droite de l’écran</li>
+                <li>Écrivez votre message de commit dans le champ prévu</li>
+                <li>Cliquez sur <strong>"Commit"</strong></li>
+                <li>Cliquez ensuite sur <strong>"Push"</strong> pour envoyer vos commits vers le dépôt distant</li>
+              </ul>
+
+              <h4>c. <code>git pull</code> – Récupérer les changements du dépôt distant</h4>
+              <ul>
+                <li>Cliquez sur le bouton <strong>"Pull"</strong> en haut à gauche (icône en forme de flèche circulaire)</li>
+              </ul>
+
+              <h4>d. <code>git rollback</code> – Revenir à un ancien commit</h4>
+              <ul>
+                <li>Cliquez sur le <strong>Git Menu</strong> (en haut à droite)</li>
+                <li>Allez dans l’onglet <strong>"Rollback"</strong></li>
+                <li>Sélectionnez un commit, puis cliquez sur <strong>"Rollback to this commit"</strong></li>
+              </ul>
+              <p style={{ color: 'red' }}><strong>⚠️ Cette action supprimera toutes les modifications après ce commit.</strong></p>
+
+              <h4>e. <code>git branch</code> – Voir et changer de branche</h4>
+              <ul>
+                <li>Votre branche actuelle est affichée dans <strong>"Select Branch"</strong></li>
+                <li>Toutes les branches distantes sont visibles</li>
+                <li>Pour changer de branche, utilisez le menu <strong>"Select Branch"</strong></li>
+                <li>Pour créer une nouvelle branche :
+                  <ul>
+                    <li>Entrez le <strong>nom souhaité</strong></li>
+                    <li>Cliquez sur <strong>"Create New Branch"</strong></li>
+                    <li>La branche sera automatiquement créée, sélectionnée (<em>checkout</em>) et envoyée (<em>push</em>) vers le dépôt Git distant</li>
+                  </ul>
+                </li>
+              </ul>
+
+              <div style={{ marginTop: '10px', fontStyle: 'italic', color: 'gray' }}>
+                Remarque : certaines opérations (comme "add") peuvent être automatisées selon la configuration serveur.
+              </div>
+            </div>
           )}
       </div>
     </div>
